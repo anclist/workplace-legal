@@ -1,0 +1,42 @@
+---
+import Heading from '../atoms/Heading.astro';
+import Text from '../atoms/Text.astro';
+
+interface Props {
+  step: number;
+  title: string;
+  text: string;
+}
+const { step, title, text } = Astro.props;
+---
+
+<li class="step">
+  <span class="step__node" aria-hidden="true">{step}</span>
+  <Heading level={3} size="sm" font="ui">{title}</Heading>
+  <Text size="sm" tone="muted">{text}</Text>
+</li>
+
+<style>
+  .step {
+    position: relative;
+    display: grid;
+    gap: var(--space-3);
+    align-content: start;
+    list-style: none;
+  }
+  .step__node {
+    display: grid;
+    place-items: center;
+    width: 3rem;
+    height: 3rem;
+    margin-bottom: var(--space-2);
+    border: 1px solid currentColor;
+    border-radius: var(--radius-full);
+    background: var(--color-surface-inverse);
+    font-family: var(--font-display);
+    font-size: var(--text-lg);
+    color: var(--wpl-sand-300);
+    position: relative;
+    z-index: 1;
+  }
+</style>

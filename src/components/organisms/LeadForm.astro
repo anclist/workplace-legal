@@ -1,0 +1,223 @@
+---
+import Input from '../atoms/Input.astro';
+import Button from '../atoms/Button.astro';
+import Icon from '../atoms/Icon.astro';
+import FormField from '../molecules/FormField.astro';
+
+interface Props {
+  /** `compact` drops lower-intent fields for embedding in CTA sections. */
+  variant?: 'full' | 'compact';
+  source: string;
+}
+const { variant = 'full', source } = Astro.props;
+const id = (name: string) => `${source}-${name}`;
+const endpoint = import.meta.env.PUBLIC_FORM_ENDPOINT ?? '';
+
+const matterOptions = [
+  { value: 'investigation', label: 'Workplace investigation' },
+  { value: 'training', label: 'Training (Litecamp / Bootcamp)' },
+  { value: 'advisory', label: 'Business advisory' },
+  { value: 'dispute', label: 'Dispute, claim or tribunal' },
+  { value: 'other', label: 'Something else' },
+];
+const roleOptions = [
+  { value: 'employer', label: 'Employer / business owner' },
+  { value: 'hr', label: 'HR or people leader' },
+  { value: 'institution', label: 'Campus, council or institution' },
+  { value: 'counsel', label: 'Legal counsel' },
+  { value: 'individual', label: 'Individual' },
+];
+const urgencyOptions = [
+  { value: 'now', label: 'Urgent — allegation already received' },
+  { value: 'month', label: 'Within the next month' },
+  { value: 'planning', label: 'Planning ahead / prevention' },
+];
+---
+
+<form class:list={['lead-form', `lead-form--${variant}`]} data-lead-form data-endpoint={endpoint} data-source={source} novalidate>
+  <div class="lead-form__grid">
+    <FormField label="Full name" for={id('name')} required>
+      <Input id={id('name')} name="name" autocomplete="name" required />
+    </FormField>
+    <FormField label="Work email" for={id('email')} required>
+      <Input id={id('email')} name="email" type="email" autocomplete="email" required />
+    </FormField>
+    <FormField label="Phone" for={id('phone')}>
+      <Input id={id('phone')} name="phone" type="tel" autocomplete="tel" />
+    </FormField>
+    <FormField label="How can we help?" for={id('matter')} required>
+      <Input as="select" id={id('matter')} name="matter" options={matterOptions} placeholder="Select a service" required />
+    </FormField>
+
+    {
+      variant === 'full' && (
+        <>
+          <FormField label="Organization" for={id('org')}>
+            <Input id={id('org')} name="organization" autocomplete="organization" />
+          </FormField>
+          <FormField label="You are" for={id('role')}>
+            <Input as="select" id={id('role')} name="role" options={roleOptions} placeholder="Select one" />
+          </FormField>
+          <FormField label="Timeline" for={id('urgency')}>
+            <Input as="select" id={id('urgency')} name="urgency" options={urgencyOptions} placeholder="Select a timeline" />
+          </FormField>
+          <FormField label="Preferred language" for={id('lang')}>
+            <Input
+              as="select"
+              id={id('lang')}
+              name="language"
+              options={[
+                { value: 'en', label: 'English' },
+                { value: 'es', label: 'Español' },
+              ]}
+            />
+          </FormField>
+        </>
+      )
+    }
+
+    <FormField
+      label="Brief description"
+      for={id('message')}
+      span={2}
+      hint="Please keep it general — don’t include names or confidential details yet."
+    >
+      <Input as="textarea" id={id('message')} name="message" rows={variant === 'full' ? 5 : 3} aria-describedby={`${id('message')}-hint`} />
+    </FormField>
+
+    <label class="lead-form__consent">
+      <input type="checkbox" name="consent" required />
+      <span>
+        I understand that submitting this form does not create a lawyer-client relationship. See the <a href="/terms-of-use">Terms of Use</a>.
+      </span>
+    </label>
+
+    <!-- Honeypot -->
+    <input type="text" name="_gotcha" tabindex="-1" autocomplete="off" class="sr-only" aria-hidden="true" />
+  </div>
+
+  <div class="lead-form__footer">
+    <Button type="submit" size="lg" icon="arrow" cta={`form:${source}`}>Request a confidential consultation</Button>
+    <p class="lead-form__assure"><Icon name="clock" size={15} /> We typically respond within one business day.</p>
+  </div>
+
+  <p class="lead-form__status" role="status" aria-live="polite" data-status></p>
+</form>
+
+<style>
+  .lead-form {
+    display: grid;
+    gap: var(--space-6);
+  }
+  .lead-form__grid {
+    display: grid;
+    gap: var(--space-5);
+  }
+  @media (min-width: 640px) {
+    .lead-form__grid {
+      grid-template-columns: 1fr 1fr;
+    }
+  }
+  .lead-form__consent {
+    grid-column: 1 / -1;
+    display: flex;
+    gap: var(--space-3);
+    align-items: flex-start;
+    font-size: var(--text-sm);
+    color: var(--color-text-muted);
+  }
+  .lead-form__consent input {
+    width: 1.1rem;
+    height: 1.1rem;
+    margin-top: 0.15rem;
+    accent-color: var(--color-action);
+  }
+  .lead-form__consent a {
+    color: var(--color-link);
+  }
+  .lead-form__footer {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    gap: var(--space-4) var(--space-6);
+  }
+  .lead-form__assure {
+    display: inline-flex;
+    align-items: center;
+    gap: var(--space-2);
+    font-size: var(--text-sm);
+    color: var(--color-text-muted);
+  }
+  .lead-form__status:empty {
+    display: none;
+  }
+  .lead-form__status {
+    padding: var(--space-3) var(--space-4);
+    border-radius: var(--radius-sm);
+    background: var(--color-action-soft);
+    color: var(--color-brand);
+    font-size: var(--text-sm);
+    font-weight: var(--weight-medium);
+  }
+  @media (max-width: 480px) {
+    .lead-form__footer :global(.btn) {
+      width: 100%;
+      white-space: normal;
+    }
+  }
+</style>
+
+<script>
+  import { track } from '../../lib/track';
+
+  document.querySelectorAll<HTMLFormElement>('[data-lead-form]').forEach((form) => {
+    const status = form.querySelector<HTMLElement>('[data-status]')!;
+    let started = false;
+
+    form.addEventListener('focusin', () => {
+      if (started) return;
+      started = true;
+      track('form_start', { form: form.dataset.source });
+    });
+
+    form.addEventListener('submit', async (e) => {
+      e.preventDefault();
+      status.textContent = '';
+
+      if (!form.checkValidity()) {
+        const firstInvalid = form.querySelector<HTMLElement>(':invalid');
+        firstInvalid?.focus();
+        form.querySelectorAll<HTMLElement>(':invalid').forEach((el) => el.setAttribute('aria-invalid', 'true'));
+        status.textContent = 'Please complete the required fields.';
+        return;
+      }
+
+      const data = new FormData(form);
+      if (data.get('_gotcha')) return;
+      data.set('source', form.dataset.source ?? '');
+      data.set('page', location.pathname);
+
+      const submit = form.querySelector<HTMLButtonElement>('[type=submit]')!;
+      submit.disabled = true;
+
+      try {
+        const endpoint = form.dataset.endpoint;
+        if (endpoint) {
+          const res = await fetch(endpoint, { method: 'POST', body: data, headers: { Accept: 'application/json' } });
+          if (!res.ok) throw new Error(String(res.status));
+        } else {
+          console.warn('[lead-form] PUBLIC_FORM_ENDPOINT not set — submission not sent.', Object.fromEntries(data));
+        }
+        track('generate_lead', { form: form.dataset.source, matter: data.get('matter') });
+        location.href = `${import.meta.env.BASE_URL.replace(/\/$/, '')}/thank-you`;
+      } catch {
+        submit.disabled = false;
+        status.textContent = 'Something went wrong. Please call (647) 381-5323 or email antonio@workplacelegal.ca.';
+      }
+    });
+
+    form.addEventListener('input', (e) => {
+      (e.target as HTMLElement).removeAttribute('aria-invalid');
+    });
+  });
+</script>

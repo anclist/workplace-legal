@@ -1,0 +1,83 @@
+---
+import BaseLayout from '../layouts/BaseLayout.astro';
+import Container from '../components/atoms/Container.astro';
+import Section from '../components/atoms/Section.astro';
+import VideoCard from '../components/molecules/VideoCard.astro';
+import PageHero from '../components/organisms/PageHero.astro';
+import CtaBanner from '../components/organisms/CtaBanner.astro';
+import { media } from '../data/media';
+---
+
+<BaseLayout
+  title="Media — In the Community"
+  description="Talks, interviews and webinars with lawyer Antonio Urdaneta on discrimination, anti-racism, COVID-19 workplace rights and employee rights — in English and Spanish."
+>
+  <PageHero
+    eyebrow="Media"
+    title="In the <em>community</em>"
+    lede="Talks, interviews and webinars on discrimination, workplace rights and employment law — in English and Spanish."
+  >
+    <div class="filters" role="group" aria-label="Filter by language">
+      <button type="button" aria-pressed="true" data-filter="all">All</button>
+      <button type="button" aria-pressed="false" data-filter="EN">English</button>
+      <button type="button" aria-pressed="false" data-filter="ES">Español</button>
+    </div>
+  </PageHero>
+
+  <Section spacing="tight">
+    <Container>
+      <div class="videos">
+        {media.map((m) => <div data-lang={m.lang}><VideoCard item={m} /></div>)}
+      </div>
+    </Container>
+  </Section>
+
+  <CtaBanner source="media" title="Need a speaker or trainer <em>for your team?</em>" lede="Antonio delivers creative, engaging workplace-law sessions for leaders, managers and HR — in English or Spanish." />
+</BaseLayout>
+
+<style>
+  .filters {
+    display: flex;
+    gap: var(--space-2);
+    margin-top: var(--space-2);
+  }
+  .filters button {
+    padding: var(--space-2) var(--space-4);
+    border: 1px solid var(--color-border-strong);
+    border-radius: var(--radius-full);
+    background: var(--color-surface);
+    font-family: var(--font-ui);
+    font-size: var(--text-sm);
+    font-weight: var(--weight-medium);
+    color: var(--color-text);
+    cursor: pointer;
+  }
+  .filters button[aria-pressed='true'] {
+    background: var(--color-text);
+    border-color: var(--color-text);
+    color: var(--color-surface);
+  }
+  .videos {
+    display: grid;
+    gap: var(--space-5);
+    grid-template-columns: repeat(auto-fill, minmax(min(100%, 20rem), 1fr));
+  }
+  .videos > div {
+    display: grid;
+  }
+  .videos > div[hidden] {
+    display: none;
+  }
+</style>
+
+<script>
+  const buttons = document.querySelectorAll<HTMLButtonElement>('[data-filter]');
+  buttons.forEach((btn) =>
+    btn.addEventListener('click', () => {
+      buttons.forEach((b) => b.setAttribute('aria-pressed', String(b === btn)));
+      document.querySelectorAll<HTMLElement>('[data-lang]').forEach((el) => {
+        el.hidden = btn.dataset.filter !== 'all' && el.dataset.lang !== btn.dataset.filter;
+      });
+    }),
+  );
+</script>

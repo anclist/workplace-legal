@@ -1,0 +1,138 @@
+---
+import BaseLayout from '../layouts/BaseLayout.astro';
+import Container from '../components/atoms/Container.astro';
+import Section from '../components/atoms/Section.astro';
+import Button from '../components/atoms/Button.astro';
+import Heading from '../components/atoms/Heading.astro';
+import Icon from '../components/atoms/Icon.astro';
+import ContactMethod from '../components/molecules/ContactMethod.astro';
+import PageHero from '../components/organisms/PageHero.astro';
+import LeadForm from '../components/organisms/LeadForm.astro';
+import { site } from '../data/site';
+---
+
+<BaseLayout
+  title="Contact & Location — Book a Consultation"
+  description="Request a confidential consultation with workplace investigator and employment lawyer Antonio F. Urdaneta. North York, Ontario. English & Spanish."
+>
+  <PageHero
+    eyebrow="Contact & location"
+    title="Let’s talk about <em>your workplace</em>"
+    lede="Tell us a little about the situation and we’ll get back to you — typically within one business day. For urgent or sensitive matters, please call."
+  />
+
+  <Section spacing="tight">
+    <Container>
+      <div class="contact">
+        <div class="contact__form">
+          <Heading level={2} size="md" font="ui">Request a consultation</Heading>
+          <LeadForm source="contact" />
+        </div>
+
+        <aside class="contact__side">
+          <div class="contact__card">
+            <Heading level={2} size="sm" font="ui">Prefer to talk now?</Heading>
+            <ContactMethod icon="phone" label="Call" value={site.phone.display} href={site.phone.href} note="Recommended for confidential matters" cta="contact:phone" />
+            <ContactMethod icon="mail" label="Email" value={site.email} href={`mailto:${site.email}`} cta="contact:email" />
+            <ContactMethod icon="doc" label="Fax" value={site.fax.display} />
+            <Button href={site.bookingUrl} variant="secondary" block icon="calendar" iconPosition="start" cta="contact:calendly">
+              Schedule time online
+            </Button>
+          </div>
+
+          <div class="contact__card">
+            <ContactMethod
+              icon="pin"
+              label="Our location"
+              value={site.address.line1}
+              note={`${site.address.city}, ${site.address.region} ${site.address.postal}`}
+              href={site.address.mapUrl}
+            />
+            <iframe
+              class="contact__map"
+              src={site.address.embedUrl}
+              title="Map to Workplace Legal"
+              loading="lazy"
+              referrerpolicy="no-referrer-when-downgrade"></iframe>
+          </div>
+
+          <p class="contact__notice">
+            <Icon name="lock" size={16} />
+            <span>
+              Email and web forms are not guaranteed to be confidential, and contacting us does not create a lawyer-client
+              relationship. If your matter is sensitive, please call directly.
+            </span>
+          </p>
+        </aside>
+      </div>
+    </Container>
+  </Section>
+</BaseLayout>
+
+<style>
+  .contact {
+    display: grid;
+    gap: var(--space-7);
+    align-items: start;
+  }
+  @media (min-width: 1000px) {
+    .contact {
+      grid-template-columns: 1.5fr 1fr;
+      gap: var(--space-9);
+    }
+  }
+  .contact__form {
+    display: grid;
+    gap: var(--space-6);
+    padding: var(--space-8);
+    background: var(--color-surface);
+    border: 1px solid var(--color-border);
+    border-radius: var(--radius-md);
+    box-shadow: var(--shadow-md);
+  }
+  @media (max-width: 560px) {
+    .contact__form {
+      padding: var(--space-5);
+    }
+  }
+  .contact__side {
+    display: grid;
+    gap: var(--space-5);
+  }
+  .contact__card {
+    display: grid;
+    gap: var(--space-5);
+    padding: var(--space-6);
+    background: var(--color-surface-muted);
+    border-radius: var(--radius-md);
+  }
+  .contact__map {
+    width: 100%;
+    height: 14rem;
+    border: 0;
+    border-radius: var(--radius-sm);
+    filter: grayscale(0.6) sepia(0.15);
+  }
+  .contact__notice {
+    display: flex;
+    gap: var(--space-3);
+    font-size: var(--text-xs);
+    color: var(--color-text-subtle);
+  }
+  .contact__notice :global(.icon) {
+    margin-top: 0.1rem;
+  }
+</style>
+
+<script>
+  // Pre-select the matter when arriving from a service CTA (/contact?service=…).
+  const map: Record<string, string> = {
+    'workplace-investigation': 'investigation',
+    learning: 'training',
+    'business-transformation': 'advisory',
+    'dispute-resolution': 'dispute',
+  };
+  const service = new URLSearchParams(location.search).get('service');
+  const select = document.querySelector<HTMLSelectElement>('select[name=matter]');
+  if (service && select && map[service]) select.value = map[service];
+</script>

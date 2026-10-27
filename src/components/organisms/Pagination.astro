@@ -1,0 +1,71 @@
+---
+import Icon from '../atoms/Icon.astro';
+
+interface Props {
+  current: number;
+  last: number;
+  prev?: string;
+  next?: string;
+  base: string;
+}
+const { current, last, prev, next, base } = Astro.props;
+const href = (n: number) => (n === 1 ? base : `${base}/${n}`);
+---
+
+<nav class="pagination" aria-label="Pagination">
+  {prev ? <a href={prev} class="pagination__step"><Icon name="arrow-left" size={16} /> Newer</a> : <span />}
+  <ol>
+    {
+      Array.from({ length: last }, (_, i) => i + 1).map((n) => (
+        <li>
+          <a href={href(n)} aria-current={n === current ? 'page' : undefined}>{n}</a>
+        </li>
+      ))
+    }
+  </ol>
+  {next ? <a href={next} class="pagination__step">Older <Icon name="arrow" size={16} /></a> : <span />}
+</nav>
+
+<style>
+  .pagination {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    gap: var(--space-4);
+    margin-top: var(--space-9);
+    font-family: var(--font-ui);
+    font-size: var(--text-sm);
+    font-weight: var(--weight-semibold);
+  }
+  .pagination ol {
+    display: flex;
+    gap: var(--space-1);
+    padding: 0;
+    list-style: none;
+  }
+  .pagination a {
+    display: inline-flex;
+    align-items: center;
+    gap: var(--space-2);
+    color: var(--color-text);
+    text-decoration: none;
+  }
+  .pagination ol a {
+    justify-content: center;
+    width: 2.5rem;
+    height: 2.5rem;
+    border-radius: var(--radius-full);
+  }
+  .pagination ol a:hover {
+    background: var(--color-surface-muted);
+  }
+  .pagination ol a[aria-current] {
+    background: var(--color-text);
+    color: var(--color-surface);
+  }
+  @media (max-width: 560px) {
+    .pagination ol {
+      display: none;
+    }
+  }
+</style>

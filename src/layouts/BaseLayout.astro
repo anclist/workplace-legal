@@ -1,0 +1,89 @@
+---
+import '../styles/global.css';
+import SiteHeader from '../components/organisms/SiteHeader.astro';
+import SiteFooter from '../components/organisms/SiteFooter.astro';
+import MobileCtaBar from '../components/organisms/MobileCtaBar.astro';
+import { site } from '../data/site';
+import { absoluteUrl } from '../lib/url';
+
+interface Props {
+  title?: string;
+  description?: string;
+  image?: string;
+  type?: 'website' | 'article';
+  schema?: Record<string, unknown>;
+}
+
+const { title, description = site.description, image = '/brand/og.jpg', type = 'website', schema } = Astro.props;
+const fullTitle = title ? `${title} | ${site.name}` : `${site.name} — Workplace Investigations & Employment Law, Ontario`;
+const canonical = new URL(Astro.url.pathname, Astro.site);
+const ogImage = image.startsWith('http') ? image : absoluteUrl(image, Astro.site);
+// Preview deployments (e.g. GitHub Pages) must not compete with the live site in search.
+const noindex = import.meta.env.PUBLIC_NOINDEX === 'true';
+
+const orgSchema = {
+  '@context': 'https://schema.org',
+  '@type': 'LegalService',
+  name: site.name,
+  url: site.url,
+  logo: absoluteUrl('/brand/logo-mark.png', Astro.site),
+  image: ogImage,
+  telephone: '+1-647-381-5323',
+  faxNumber: '+1-647-695-6993',
+  email: site.email,
+  areaServed: 'Ontario, Canada',
+  availableLanguage: ['English', 'Spanish'],
+  address: {
+    '@type': 'PostalAddress',
+    streetAddress: site.address.line1,
+    addressLocality: site.address.city,
+    addressRegion: site.address.region,
+    postalCode: site.address.postal,
+    addressCountry: 'CA',
+  },
+  founder: { '@type': 'Person', name: site.lawyer, jobTitle: 'Lawyer & Workplace Investigator' },
+  sameAs: [site.social.linkedin, site.social.twitter],
+};
+---
+
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>{fullTitle}</title>
+    <meta name="description" content={description} />
+    <link rel="canonical" href={canonical} />
+    {noindex && <meta name="robots" content="noindex, nofollow" />}
+    <link rel="icon" type="image/png" href="/favicon.png" />
+    <link rel="sitemap" href="/sitemap-index.xml" />
+    <meta name="theme-color" content="#161e26" />
+
+    <meta property="og:type" content={type} />
+    <meta property="og:site_name" content={site.name} />
+    <meta property="og:title" content={fullTitle} />
+    <meta property="og:description" content={description} />
+    <meta property="og:url" content={canonical} />
+    <meta property="og:image" content={ogImage} />
+    <meta name="twitter:card" content="summary_large_image" />
+
+    <link rel="preconnect" href="https://i.ytimg.com" />
+    <script type="application/ld+json" set:html={JSON.stringify(orgSchema)} />
+    {schema && <script type="application/ld+json" set:html={JSON.stringify(schema)} />}
+    <slot name="head" />
+  </head>
+  <body>
+    <a href="#main" class="skip-link">Skip to content</a>
+    <SiteHeader />
+    <main id="main">
+      <slot />
+    </main>
+    <SiteFooter />
+    <MobileCtaBar />
+
+    <script>
+      import { trackCtaClicks } from '../lib/track';
+      trackCtaClicks();
+    </script>
+  </body>
+</html>

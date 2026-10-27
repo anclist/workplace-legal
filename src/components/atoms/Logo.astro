@@ -1,0 +1,42 @@
+---
+interface Props {
+  tone?: 'default' | 'inverse';
+  showWordmark?: boolean;
+}
+const { tone = 'default', showWordmark = true } = Astro.props;
+---
+
+<a href="/" class:list={['logo', `logo--${tone}`]} aria-label="Workplace Legal — home">
+  <img src="/brand/logo-mark.png" alt="" width="40" height="40" class="logo__mark" />
+  {
+    showWordmark && (
+      <span class="logo__word">
+        Workplace <strong>Legal</strong>
+      </span>
+    )
+  }
+</a>
+
+<style>
+  .logo {
+    display: inline-flex;
+    align-items: center;
+    gap: var(--space-3);
+    text-decoration: none;
+    color: var(--color-text);
+  }
+  .logo--inverse { color: var(--color-text-inverse); }
+  .logo__mark {
+    width: 2.5rem;
+    height: 2.5rem;
+  }
+  .logo__word {
+    font-family: var(--font-ui);
+    font-size: 1.0625rem;
+    font-weight: var(--weight-medium);
+    letter-spacing: 0.01em;
+  }
+  .logo__word strong {
+    font-weight: var(--weight-bold);
+  }
+</style>

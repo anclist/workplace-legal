@@ -1,0 +1,54 @@
+---
+import Container from '../atoms/Container.astro';
+import Section from '../atoms/Section.astro';
+import Button from '../atoms/Button.astro';
+import SectionHeader from '../molecules/SectionHeader.astro';
+import FaqItem from '../molecules/FaqItem.astro';
+import { faqs } from '../../data/site';
+
+interface Props {
+  tone?: 'default' | 'surface' | 'muted';
+}
+const { tone = 'default' } = Astro.props;
+
+const schema = {
+  '@context': 'https://schema.org',
+  '@type': 'FAQPage',
+  mainEntity: faqs.map((f) => ({ '@type': 'Question', name: f.q, acceptedAnswer: { '@type': 'Answer', text: f.a } })),
+};
+---
+
+<Section tone={tone} labelledby="faq-title">
+  <Container>
+    <div class="faq-layout">
+      <SectionHeader id="faq-title" eyebrow="FAQ" title="Questions leaders ask <em>before they call</em>">
+        <Button href="/contact" variant="secondary" icon="arrow" cta="faq:contact">Ask your own question</Button>
+      </SectionHeader>
+      <div>
+        {faqs.map((f, i) => <FaqItem question={f.q} open={i === 0}>{f.a}</FaqItem>)}
+      </div>
+    </div>
+  </Container>
+  <script type="application/ld+json" set:html={JSON.stringify(schema)} />
+</Section>
+
+<style>
+  .faq-layout {
+    display: grid;
+    gap: var(--space-6);
+  }
+  .faq-layout :global(.section-header) {
+    justify-items: start;
+  }
+  @media (min-width: 960px) {
+    .faq-layout {
+      grid-template-columns: 1fr 1.5fr;
+      gap: var(--space-10);
+    }
+    .faq-layout :global(.section-header) {
+      position: sticky;
+      top: calc(var(--header-height) + var(--space-6));
+      align-self: start;
+    }
+  }
+</style>

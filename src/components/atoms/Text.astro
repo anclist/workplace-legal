@@ -1,0 +1,29 @@
+---
+interface Props {
+  size?: 'sm' | 'base' | 'md' | 'lg';
+  tone?: 'default' | 'muted' | 'subtle';
+  as?: 'p' | 'span' | 'div';
+  measure?: boolean;
+  class?: string;
+}
+const { size = 'base', tone = 'default', as: Tag = 'p', measure = false, class: className } = Astro.props;
+---
+
+<Tag class:list={['text', `text--${size}`, `text--${tone}`, { 'text--measure': measure }, className]}><slot /></Tag>
+
+<style>
+  .text { text-wrap: pretty; }
+  .text--sm { font-size: var(--text-sm); }
+  .text--base { font-size: var(--text-base); }
+  .text--md { font-size: var(--text-md); }
+  .text--lg { font-size: var(--text-lg); line-height: var(--leading-snug); }
+  .text--default { color: inherit; }
+  .text--muted { color: var(--color-text-muted); }
+  .text--subtle { color: var(--color-text-subtle); }
+  .text--measure { max-width: 62ch; }
+
+  :global([data-theme='inverse']) .text--muted,
+  :global([data-theme='inverse']) .text--subtle {
+    color: var(--color-text-inverse-muted);
+  }
+</style>

@@ -1,0 +1,57 @@
+---
+import BaseLayout from '../layouts/BaseLayout.astro';
+import Container from '../components/atoms/Container.astro';
+import Section from '../components/atoms/Section.astro';
+import Button from '../components/atoms/Button.astro';
+import Eyebrow from '../components/atoms/Eyebrow.astro';
+import Heading from '../components/atoms/Heading.astro';
+import Text from '../components/atoms/Text.astro';
+import Icon from '../components/atoms/Icon.astro';
+import { site } from '../data/site';
+---
+
+<BaseLayout title="Thank you">
+  <meta name="robots" content="noindex" slot="head" />
+  <Section>
+    <Container width="narrow">
+      <div class="ty">
+        <span class="ty__icon"><Icon name="check" size={32} /></span>
+        <Eyebrow rule={false}>Request received</Eyebrow>
+        <Heading level={1} size="xl">Thank you — <em>we’ll be in touch.</em></Heading>
+        <Text size="md" tone="muted">
+          Antonio will review your note and reply within one business day. If the matter is urgent, you can skip the
+          wait and book a time now.
+        </Text>
+        <div class="ty__actions">
+          <Button href={site.bookingUrl} icon="calendar" iconPosition="start" cta="thank-you:calendly">Book a time now</Button>
+          <Button href={site.phone.href} variant="secondary" icon="phone" iconPosition="start" cta="thank-you:phone">{site.phone.display}</Button>
+        </div>
+        <Button href="/blog" variant="link" icon="arrow">Meanwhile, read our latest insights</Button>
+      </div>
+    </Container>
+  </Section>
+</BaseLayout>
+
+<style>
+  .ty {
+    display: grid;
+    gap: var(--space-5);
+    justify-items: center;
+    text-align: center;
+  }
+  .ty__icon {
+    display: grid;
+    place-items: center;
+    width: 4.5rem;
+    height: 4.5rem;
+    border-radius: 50%;
+    background: var(--color-action);
+    color: var(--color-action-text);
+  }
+  .ty__actions {
+    display: flex;
+    flex-wrap: wrap;
+    justify-content: center;
+    gap: var(--space-3);
+  }
+</style>

@@ -1,0 +1,28 @@
+---
+interface Props {
+  tone?: 'default' | 'muted' | 'surface' | 'inverse';
+  spacing?: 'default' | 'tight' | 'none';
+  id?: string;
+  class?: string;
+  labelledby?: string;
+}
+const { tone = 'default', spacing = 'default', id, class: className, labelledby } = Astro.props;
+---
+
+<section
+  id={id}
+  aria-labelledby={labelledby}
+  data-theme={tone === 'inverse' ? 'inverse' : undefined}
+  class:list={['section', `section--${tone}`, `section--space-${spacing}`, className]}
+>
+  <slot />
+</section>
+
+<style>
+  .section { position: relative; }
+  .section--space-default { padding-block: var(--space-section); }
+  .section--space-tight { padding-block: var(--space-9); }
+  .section--muted { background: var(--color-surface-muted); }
+  .section--surface { background: var(--color-surface); }
+  .section--inverse { background: var(--color-surface-inverse); color: var(--color-text-inverse); }
+</style>

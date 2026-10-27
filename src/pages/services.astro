@@ -1,0 +1,182 @@
+---
+import BaseLayout from '../layouts/BaseLayout.astro';
+import Container from '../components/atoms/Container.astro';
+import Section from '../components/atoms/Section.astro';
+import Button from '../components/atoms/Button.astro';
+import Heading from '../components/atoms/Heading.astro';
+import Text from '../components/atoms/Text.astro';
+import Icon from '../components/atoms/Icon.astro';
+import Badge from '../components/atoms/Badge.astro';
+import PageHero from '../components/organisms/PageHero.astro';
+import ProcessSteps from '../components/organisms/ProcessSteps.astro';
+import FaqList from '../components/organisms/FaqList.astro';
+import CtaBanner from '../components/organisms/CtaBanner.astro';
+import { services } from '../data/services';
+import { site } from '../data/site';
+---
+
+<BaseLayout
+  title="Services — Workplace Investigations, Training, Advisory & Representation"
+  description="Workplace and institutional investigations, Litecamp & Bootcamp training, business transformation advisory and dispute resolution for Ontario employers."
+>
+  <PageHero
+    eyebrow="Services"
+    title="Legal services for <em>every stage</em> of workplace conduct"
+    lede="Prevent issues with training and advisory, respond with independent investigations, and resolve disputes before courts and tribunals."
+  >
+    <nav class="jump" aria-label="Services on this page">
+      {
+        services.map((s) => (
+          <a href={`#${s.slug}`}>
+            <Icon name={s.icon} size={16} /> {s.title.split(':')[0].replace(' & Representation', '').replace(' Advisory', '')}
+          </a>
+        ))
+      }
+    </nav>
+  </PageHero>
+
+  {
+    services.map((s, i) => (
+      <Section tone={i % 2 ? 'surface' : 'default'} id={s.slug} labelledby={`${s.slug}-title`}>
+        <Container>
+          <div class="svc">
+            <div class="svc__intro">
+              <span class="svc__num">{String(i + 1).padStart(2, '0')}</span>
+              <Heading level={2} size="lg" id={`${s.slug}-title`}>{s.title}</Heading>
+              <div class="svc__badges">
+                {s.outcomes.map((o) => <Badge tone="accent">{o}</Badge>)}
+              </div>
+              <div class="svc__cta">
+                <Button href={`/contact?service=${s.slug}`} icon="arrow" cta={`services:${s.slug}`}>{s.cta}</Button>
+                <Button href={site.phone.href} variant="ghost" icon="phone" iconPosition="start" cta={`services:${s.slug}:phone`}>Call</Button>
+              </div>
+            </div>
+            <div class="svc__body">
+              {s.body.map((p) => <Text size="md">{p}</Text>)}
+              {s.options && (
+                <div class="svc__options">
+                  {s.options.map((o) => (
+                    <div class="svc__option">
+                      <h3>{o.title}</h3>
+                      <p>{o.text}</p>
+                    </div>
+                  ))}
+                </div>
+              )}
+              {s.slug === 'workplace-investigation' && (
+                <p class="svc__note">
+                  <Icon name="globe" size={16} /> Witness interviews in Spanish are available.
+                </p>
+              )}
+            </div>
+          </div>
+        </Container>
+      </Section>
+    ))
+  }
+
+  <ProcessSteps />
+  <FaqList tone="surface" />
+  <CtaBanner source="services" title="Not sure which service fits? <em>Start with a conversation.</em>" />
+</BaseLayout>
+
+<style>
+  .jump {
+    display: flex;
+    flex-wrap: wrap;
+    gap: var(--space-2);
+    margin-top: var(--space-3);
+  }
+  .jump a {
+    display: inline-flex;
+    align-items: center;
+    gap: var(--space-2);
+    padding: var(--space-2) var(--space-4);
+    border: 1px solid var(--color-border-strong);
+    border-radius: var(--radius-full);
+    background: var(--color-surface);
+    font-family: var(--font-ui);
+    font-size: var(--text-sm);
+    font-weight: var(--weight-medium);
+    color: var(--color-text);
+    text-decoration: none;
+    transition: border-color var(--duration-fast) var(--ease-out), color var(--duration-fast) var(--ease-out);
+  }
+  .jump a:hover {
+    border-color: var(--color-brand);
+    color: var(--color-brand);
+  }
+
+  .svc {
+    display: grid;
+    gap: var(--space-7);
+  }
+  @media (min-width: 960px) {
+    .svc {
+      grid-template-columns: 1fr 1.4fr;
+      gap: var(--space-10);
+    }
+    .svc__intro {
+      position: sticky;
+      top: calc(var(--header-height) + var(--space-6));
+      align-self: start;
+    }
+  }
+  .svc__intro {
+    display: grid;
+    gap: var(--space-5);
+    justify-items: start;
+  }
+  .svc__num {
+    font-family: var(--font-display);
+    font-size: var(--text-2xl);
+    line-height: 1;
+    color: var(--wpl-sand-300);
+  }
+  .svc__badges {
+    display: flex;
+    flex-wrap: wrap;
+    gap: var(--space-2);
+  }
+  .svc__cta {
+    display: flex;
+    flex-wrap: wrap;
+    gap: var(--space-2);
+  }
+  .svc__body {
+    display: grid;
+    gap: var(--space-5);
+  }
+  .svc__options {
+    display: grid;
+    gap: var(--space-4);
+    grid-template-columns: repeat(auto-fit, minmax(min(100%, 15rem), 1fr));
+    margin-top: var(--space-3);
+  }
+  .svc__option {
+    padding: var(--space-5);
+    background: var(--color-surface);
+    border: 1px solid var(--color-border);
+    border-top: 2px solid var(--color-accent);
+    border-radius: var(--radius-sm);
+  }
+  :global(.section--surface) .svc__option {
+    background: var(--color-bg);
+  }
+  .svc__option h3 {
+    margin-bottom: var(--space-2);
+    font-family: var(--font-ui);
+    font-size: var(--text-base);
+  }
+  .svc__option p {
+    font-size: var(--text-sm);
+    color: var(--color-text-muted);
+  }
+  .svc__note {
+    display: inline-flex;
+    align-items: center;
+    gap: var(--space-2);
+    font-weight: var(--weight-semibold);
+    color: var(--color-brand);
+  }
+</style>

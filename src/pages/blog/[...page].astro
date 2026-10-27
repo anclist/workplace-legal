@@ -1,0 +1,61 @@
+---
+import type { GetStaticPaths } from 'astro';
+import { getCollection } from 'astro:content';
+import BaseLayout from '../../layouts/BaseLayout.astro';
+import Container from '../../components/atoms/Container.astro';
+import Section from '../../components/atoms/Section.astro';
+import PostCard from '../../components/molecules/PostCard.astro';
+import PageHero from '../../components/organisms/PageHero.astro';
+import Pagination from '../../components/organisms/Pagination.astro';
+import CtaBanner from '../../components/organisms/CtaBanner.astro';
+
+export const getStaticPaths = (async ({ paginate }) => {
+  const posts = (await getCollection('posts')).sort((a, b) => a.data.order - b.data.order);
+  return paginate(posts, { pageSize: 10 });
+}) satisfies GetStaticPaths;
+
+const { page } = Astro.props;
+const [featured, ...rest] = page.data;
+const isFirst = page.currentPage === 1;
+const items = isFirst ? rest : page.data;
+---
+
+<BaseLayout
+  title={isFirst ? 'Insights — Workplace Investigations Blog' : `Insights — Page ${page.currentPage}`}
+  description="Articles by Antonio Urdaneta and collaborators on workplace investigations, harassment, procedural fairness, credibility and employment law in Canada."
+>
+  <PageHero
+    eyebrow="Insights"
+    title="Notes from <em>the investigator’s desk</em>"
+    lede="The latest from Antonio Urdaneta and close collaborators — on investigations, fairness, trust and the law at work."
+  />
+
+  <Section spacing="tight">
+    <Container>
+      {
+        isFirst && featured && (
+          <div class="featured">
+            <PostCard slug={featured.id} {...featured.data} featured />
+          </div>
+        )
+      }
+      <div class="grid">
+        {items.map((p) => <PostCard slug={p.id} {...p.data} />)}
+      </div>
+      <Pagination current={page.currentPage} last={page.lastPage} prev={page.url.prev} next={page.url.next} base="/blog" />
+    </Container>
+  </Section>
+
+  <CtaBanner source="blog" title="Facing a situation like the ones we write about? <em>Let’s talk.</em>" />
+</BaseLayout>
+
+<style>
+  .featured {
+    margin-bottom: var(--space-6);
+  }
+  .grid {
+    display: grid;
+    gap: var(--space-5);
+    grid-template-columns: repeat(auto-fill, minmax(min(100%, 20rem), 1fr));
+  }
+</style>

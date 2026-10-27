@@ -1,0 +1,255 @@
+---
+import Logo from '../atoms/Logo.astro';
+import Button from '../atoms/Button.astro';
+import Icon from '../atoms/Icon.astro';
+import Container from '../atoms/Container.astro';
+import { nav, site } from '../../data/site';
+
+const path = Astro.url.pathname.replace(/\/$/, '') || '/';
+const isActive = (href: string) => path === href || (href === '/blog' && path.startsWith('/post')) || path.startsWith(`${href}/`);
+---
+
+<div class="utility" data-theme="inverse">
+  <Container class="utility__inner">
+    <span class="utility__note"><Icon name="globe" size={14} /> Services in English &amp; Español · Ontario</span>
+    <span class="utility__links">
+      <a href={site.phone.href} data-cta="utility:phone"><Icon name="phone" size={14} /> {site.phone.display}</a>
+      <a href={site.clientLoginUrl} target="_blank" rel="noopener"><Icon name="lock" size={14} /> Client login</a>
+    </span>
+  </Container>
+</div>
+
+<header class="header" data-header>
+  <Container class="header__inner">
+    <Logo />
+
+    <nav class="header__nav" aria-label="Main">
+      <ul>
+        {
+          nav.map((item) => (
+            <li>
+              <a href={item.href} aria-current={isActive(item.href) ? 'page' : undefined}>
+                {item.label}
+              </a>
+            </li>
+          ))
+        }
+      </ul>
+    </nav>
+
+    <div class="header__actions">
+      <Button href="/contact" size="sm" icon="arrow" cta="header:consult">Free consultation</Button>
+      <button class="header__toggle" type="button" aria-expanded="false" aria-controls="mobile-nav" data-menu-toggle>
+        <span class="sr-only">Menu</span>
+        <Icon name="menu" size={24} class="header__icon-open" />
+        <Icon name="close" size={24} class="header__icon-close" />
+      </button>
+    </div>
+  </Container>
+
+  <nav id="mobile-nav" class="mobile-nav" aria-label="Mobile" hidden>
+    <ul>
+      {
+        nav.map((item) => (
+          <li>
+            <a href={item.href} aria-current={isActive(item.href) ? 'page' : undefined}>
+              {item.label}
+              <Icon name="arrow" size={18} />
+            </a>
+          </li>
+        ))
+      }
+    </ul>
+    <div class="mobile-nav__cta">
+      <Button href="/contact" block size="lg" cta="mobile-nav:consult">Request a consultation</Button>
+      <Button href={site.phone.href} variant="secondary" block size="lg" icon="phone" iconPosition="start" cta="mobile-nav:phone">
+        {site.phone.display}
+      </Button>
+    </div>
+  </nav>
+</header>
+
+<style>
+  .utility {
+    background: var(--color-surface-inverse);
+    color: var(--color-text-inverse-muted);
+    font-family: var(--font-ui);
+    font-size: var(--text-xs);
+  }
+  .utility :global(.utility__inner) {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    gap: var(--space-4);
+    min-height: 2.25rem;
+  }
+  .utility__note,
+  .utility__links a {
+    display: inline-flex;
+    align-items: center;
+    gap: var(--space-2);
+  }
+  .utility__links {
+    display: flex;
+    gap: var(--space-5);
+  }
+  .utility__links a {
+    color: var(--color-text-inverse);
+    text-decoration: none;
+    font-weight: var(--weight-medium);
+  }
+  .utility__links a:hover {
+    color: var(--wpl-sand-300);
+  }
+  @media (max-width: 720px) {
+    .utility__note {
+      display: none;
+    }
+    .utility :global(.utility__inner) {
+      justify-content: flex-end;
+    }
+  }
+
+  .header {
+    position: sticky;
+    top: 0;
+    z-index: var(--z-header);
+    background: color-mix(in srgb, var(--color-bg) 88%, transparent);
+    backdrop-filter: saturate(1.4) blur(12px);
+    border-bottom: 1px solid transparent;
+    transition: border-color var(--duration-base) var(--ease-out), box-shadow var(--duration-base) var(--ease-out);
+  }
+  .header[data-scrolled] {
+    border-bottom-color: var(--color-border);
+    box-shadow: var(--shadow-sm);
+  }
+  .header :global(.header__inner) {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: var(--space-5);
+    height: var(--header-height);
+  }
+
+  .header__nav ul {
+    display: flex;
+    gap: var(--space-1);
+    padding: 0;
+    list-style: none;
+  }
+  .header__nav a {
+    position: relative;
+    display: block;
+    padding: var(--space-2) var(--space-3);
+    font-family: var(--font-ui);
+    font-size: var(--text-sm);
+    font-weight: var(--weight-medium);
+    color: var(--color-text-muted);
+    text-decoration: none;
+    transition: color var(--duration-fast) var(--ease-out);
+  }
+  .header__nav a:hover,
+  .header__nav a[aria-current] {
+    color: var(--color-text);
+  }
+  .header__nav a[aria-current]::after {
+    content: '';
+    position: absolute;
+    left: var(--space-3);
+    right: var(--space-3);
+    bottom: 0;
+    height: 2px;
+    background: var(--color-brand);
+  }
+
+  .header__actions {
+    display: flex;
+    align-items: center;
+    gap: var(--space-3);
+  }
+  .header__toggle {
+    display: none;
+    padding: var(--space-2);
+    border: 0;
+    background: none;
+    color: var(--color-text);
+    cursor: pointer;
+  }
+  .header__toggle :global(.header__icon-close) {
+    display: none;
+  }
+  .header__toggle[aria-expanded='true'] :global(.header__icon-open) {
+    display: none;
+  }
+  .header__toggle[aria-expanded='true'] :global(.header__icon-close) {
+    display: block;
+  }
+
+  .mobile-nav {
+    padding: var(--space-4) var(--gutter) var(--space-6);
+    border-top: 1px solid var(--color-border);
+    background: var(--color-bg);
+    max-height: calc(100dvh - var(--header-height));
+    overflow-y: auto;
+  }
+  .mobile-nav ul {
+    padding: 0;
+    list-style: none;
+  }
+  .mobile-nav a {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: var(--space-4) 0;
+    border-bottom: 1px solid var(--color-border);
+    font-family: var(--font-display);
+    font-size: var(--text-xl);
+    color: var(--color-text);
+    text-decoration: none;
+  }
+  .mobile-nav a[aria-current] {
+    color: var(--color-brand);
+  }
+  .mobile-nav__cta {
+    display: grid;
+    gap: var(--space-3);
+    margin-top: var(--space-6);
+  }
+  .mobile-nav__cta a {
+    font-family: var(--font-ui);
+    font-size: var(--text-base);
+    border-bottom: 0;
+    padding: 1rem 1.75rem;
+  }
+
+  @media (max-width: 960px) {
+    .header__nav {
+      display: none;
+    }
+    .header__toggle {
+      display: block;
+    }
+  }
+  @media (max-width: 480px) {
+    .header__actions :global(.btn) {
+      display: none;
+    }
+  }
+</style>
+
+<script>
+  const header = document.querySelector<HTMLElement>('[data-header]');
+  const toggle = document.querySelector<HTMLButtonElement>('[data-menu-toggle]');
+  const panel = document.getElementById('mobile-nav');
+
+  const onScroll = () => header?.toggleAttribute('data-scrolled', window.scrollY > 8);
+  onScroll();
+  window.addEventListener('scroll', onScroll, { passive: true });
+
+  toggle?.addEventListener('click', () => {
+    const open = toggle.getAttribute('aria-expanded') === 'true';
+    toggle.setAttribute('aria-expanded', String(!open));
+    if (panel) panel.hidden = open;
+    document.body.style.overflow = open ? '' : 'hidden';
+  });
+</script>

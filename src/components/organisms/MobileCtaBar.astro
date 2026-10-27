@@ -1,0 +1,51 @@
+---
+import Icon from '../atoms/Icon.astro';
+import { site } from '../../data/site';
+---
+
+<!-- Thumb-zone CTA for phones: the two highest-intent actions, always visible. -->
+<div class="mobile-cta" role="complementary" aria-label="Quick contact">
+  <a href={site.phone.href} class="mobile-cta__call" data-cta="mobile-bar:phone"><Icon name="phone" size={18} /> Call</a>
+  <a href="/contact" class="mobile-cta__main" data-cta="mobile-bar:consult"><Icon name="calendar" size={18} /> Book a consultation</a>
+</div>
+
+<style>
+  .mobile-cta {
+    position: fixed;
+    inset: auto 0 0 0;
+    z-index: var(--z-mobile-bar);
+    display: none;
+    grid-template-columns: auto 1fr;
+    gap: var(--space-2);
+    padding: var(--space-3) var(--space-4) calc(var(--space-3) + env(safe-area-inset-bottom));
+    background: color-mix(in srgb, var(--color-surface) 94%, transparent);
+    backdrop-filter: blur(10px);
+    border-top: 1px solid var(--color-border);
+    box-shadow: 0 -8px 24px -12px rgb(22 30 38 / 0.2);
+  }
+  .mobile-cta a {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    gap: var(--space-2);
+    padding: 0.85rem 1.1rem;
+    border-radius: var(--radius-sm);
+    font-family: var(--font-ui);
+    font-size: var(--text-sm);
+    font-weight: var(--weight-semibold);
+    text-decoration: none;
+  }
+  .mobile-cta__call {
+    border: 1px solid var(--color-text);
+    color: var(--color-text);
+  }
+  .mobile-cta__main {
+    background: var(--color-action);
+    color: var(--color-action-text);
+  }
+  @media (max-width: 720px) {
+    .mobile-cta {
+      display: grid;
+    }
+  }
+</style>

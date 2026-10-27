@@ -1,0 +1,66 @@
+---
+interface Props {
+  question: string;
+  open?: boolean;
+}
+const { question, open = false } = Astro.props;
+---
+
+<details class="faq" open={open}>
+  <summary class="faq__q">
+    <span>{question}</span>
+    <span class="faq__toggle" aria-hidden="true"></span>
+  </summary>
+  <div class="faq__a"><slot /></div>
+</details>
+
+<style>
+  .faq {
+    border-bottom: 1px solid var(--color-border);
+  }
+  .faq__q {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    gap: var(--space-5);
+    padding: var(--space-5) 0;
+    cursor: pointer;
+    list-style: none;
+    font-family: var(--font-ui);
+    font-size: var(--text-md);
+    font-weight: var(--weight-semibold);
+  }
+  .faq__q::-webkit-details-marker {
+    display: none;
+  }
+  .faq__toggle {
+    position: relative;
+    flex-shrink: 0;
+    width: 1.75rem;
+    height: 1.75rem;
+    border: 1px solid var(--color-border-strong);
+    border-radius: var(--radius-full);
+  }
+  .faq__toggle::before,
+  .faq__toggle::after {
+    content: '';
+    position: absolute;
+    inset: 50% auto auto 50%;
+    width: 0.7rem;
+    height: 1.5px;
+    background: var(--color-brand);
+    translate: -50% -50%;
+    transition: rotate var(--duration-base) var(--ease-out);
+  }
+  .faq__toggle::after {
+    rotate: 90deg;
+  }
+  .faq[open] .faq__toggle::after {
+    rotate: 0deg;
+  }
+  .faq__a {
+    padding-bottom: var(--space-5);
+    max-width: 62ch;
+    color: var(--color-text-muted);
+  }
+</style>

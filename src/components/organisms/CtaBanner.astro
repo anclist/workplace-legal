@@ -1,0 +1,76 @@
+---
+import Container from '../atoms/Container.astro';
+import Eyebrow from '../atoms/Eyebrow.astro';
+import Heading from '../atoms/Heading.astro';
+import Text from '../atoms/Text.astro';
+import Section from '../atoms/Section.astro';
+import ContactMethod from '../molecules/ContactMethod.astro';
+import LeadForm from './LeadForm.astro';
+import { site } from '../../data/site';
+
+interface Props {
+  source: string;
+  title?: string;
+  lede?: string;
+}
+const {
+  source,
+  title = 'Received a complaint? <em>Let’s talk</em> before you act.',
+  lede = 'The first steps after an allegation shape everything that follows. A short, confidential call can help you scope the investigation, protect the parties and keep your process defensible.',
+} = Astro.props;
+---
+
+<Section tone="inverse" id="consult" labelledby={`${source}-cta-title`}>
+  <Container>
+    <div class="cta">
+      <div class="cta__copy">
+        <Eyebrow>Free initial consultation</Eyebrow>
+        <Heading level={2} size="lg" id={`${source}-cta-title`}><Fragment set:html={title} /></Heading>
+        <Text size="md" tone="muted">{lede}</Text>
+        <div class="cta__methods">
+          <ContactMethod icon="phone" label="Call directly" value={site.phone.display} href={site.phone.href} note="Best for sensitive matters" cta={`${source}:phone`} />
+          <ContactMethod icon="calendar" label="Book online" value="Schedule time with the investigator" href={site.bookingUrl} cta={`${source}:calendly`} />
+          <ContactMethod icon="mail" label="Email" value={site.email} href={`mailto:${site.email}`} cta={`${source}:email`} />
+        </div>
+      </div>
+      <div class="cta__form">
+        <LeadForm variant="compact" source={source} />
+      </div>
+    </div>
+  </Container>
+</Section>
+
+<style>
+  .cta {
+    display: grid;
+    gap: var(--space-8);
+    align-items: start;
+  }
+  @media (min-width: 960px) {
+    .cta {
+      grid-template-columns: 1fr 1.1fr;
+      gap: var(--space-10);
+    }
+  }
+  .cta__copy {
+    display: grid;
+    gap: var(--space-5);
+  }
+  .cta__methods {
+    display: grid;
+    gap: var(--space-5);
+    margin-top: var(--space-4);
+  }
+  .cta__form {
+    padding: var(--space-7);
+    background: var(--color-surface);
+    color: var(--color-text);
+    border-radius: var(--radius-md);
+    box-shadow: var(--shadow-lg);
+  }
+  @media (max-width: 480px) {
+    .cta__form {
+      padding: var(--space-5);
+    }
+  }
+</style>

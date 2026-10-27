@@ -1,0 +1,37 @@
+---
+import Eyebrow from '../atoms/Eyebrow.astro';
+import Heading from '../atoms/Heading.astro';
+import Text from '../atoms/Text.astro';
+
+interface Props {
+  eyebrow?: string;
+  title: string;
+  lede?: string;
+  id?: string;
+  align?: 'start' | 'center';
+  level?: 1 | 2;
+  size?: 'lg' | 'xl';
+}
+const { eyebrow, title, lede, id, align = 'start', level = 2, size = 'lg' } = Astro.props;
+---
+
+<header class:list={['section-header', `section-header--${align}`]}>
+  {eyebrow && <Eyebrow rule={align === 'start'}>{eyebrow}</Eyebrow>}
+  <Heading level={level} size={size} id={id}><Fragment set:html={title} /></Heading>
+  {lede && <Text size="md" tone="muted" measure>{lede}</Text>}
+  <slot />
+</header>
+
+<style>
+  .section-header {
+    display: grid;
+    gap: var(--space-4);
+    max-width: 46rem;
+    margin-bottom: var(--space-8);
+  }
+  .section-header--center {
+    margin-inline: auto;
+    text-align: center;
+    justify-items: center;
+  }
+</style>

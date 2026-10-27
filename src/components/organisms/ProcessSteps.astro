@@ -1,0 +1,45 @@
+---
+import Container from '../atoms/Container.astro';
+import Section from '../atoms/Section.astro';
+import SectionHeader from '../molecules/SectionHeader.astro';
+import ProcessStep from '../molecules/ProcessStep.astro';
+import { process } from '../../data/site';
+---
+
+<Section tone="inverse" labelledby="process-title">
+  <Container>
+    <SectionHeader
+      id="process-title"
+      eyebrow="How it works"
+      title="A clear, fair process — <em>from first call to final report</em>"
+      lede="Every investigation follows the same disciplined path, so leaders know what to expect and every party is treated fairly."
+    />
+    <ol class="process">
+      {process.map((s, i) => <ProcessStep step={i + 1} title={s.title} text={s.text} />)}
+    </ol>
+  </Container>
+</Section>
+
+<style>
+  .process {
+    position: relative;
+    display: grid;
+    gap: var(--space-7);
+    padding: 0;
+  }
+  @media (min-width: 860px) {
+    .process {
+      grid-template-columns: repeat(4, 1fr);
+    }
+    /* Horizon line linking the step nodes. */
+    .process::before {
+      content: '';
+      position: absolute;
+      top: 1.5rem;
+      left: 1.5rem;
+      right: 10%;
+      height: 1px;
+      background: var(--color-border-inverse);
+    }
+  }
+</style>

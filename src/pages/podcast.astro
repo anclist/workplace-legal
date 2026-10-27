@@ -1,0 +1,63 @@
+---
+import BaseLayout from '../layouts/BaseLayout.astro';
+import Container from '../components/atoms/Container.astro';
+import Section from '../components/atoms/Section.astro';
+import Button from '../components/atoms/Button.astro';
+import Heading from '../components/atoms/Heading.astro';
+import Text from '../components/atoms/Text.astro';
+import Icon from '../components/atoms/Icon.astro';
+import PageHero from '../components/organisms/PageHero.astro';
+import { site } from '../data/site';
+---
+
+<BaseLayout title="Podcast" description="The Workplace Legal podcast — conversations on workplace investigations, trust and the law at work. Coming soon.">
+  <PageHero
+    eyebrow="Podcast"
+    title="Work in <em>progress</em>"
+    lede="Conversations on workplace investigations, leadership, trust and the law at work. New episodes are on the way."
+  />
+
+  <Section spacing="tight">
+    <Container width="narrow">
+      <div class="pod">
+        <span class="pod__icon"><Icon name="mic" size={30} /></span>
+        <Heading level={2} size="md">Be the first to hear it</Heading>
+        <Text tone="muted">
+          Want to be notified when the first episode drops — or have a topic or guest to suggest? Send a note and we’ll keep you posted.
+        </Text>
+        <div class="pod__actions">
+          <Button href={`mailto:${site.email}?subject=Podcast%20updates`} icon="mail" iconPosition="start" cta="podcast:notify">Notify me</Button>
+          <Button href="/media" variant="secondary" icon="arrow" cta="podcast:media">Watch past talks</Button>
+        </div>
+      </div>
+    </Container>
+  </Section>
+</BaseLayout>
+
+<style>
+  .pod {
+    display: grid;
+    gap: var(--space-5);
+    justify-items: center;
+    padding: var(--space-9) var(--space-6);
+    text-align: center;
+    background: var(--color-surface);
+    border: 1px dashed var(--color-border-strong);
+    border-radius: var(--radius-lg);
+  }
+  .pod__icon {
+    display: grid;
+    place-items: center;
+    width: 4.5rem;
+    height: 4.5rem;
+    border-radius: 50%;
+    background: var(--color-action-soft);
+    color: var(--color-brand);
+  }
+  .pod__actions {
+    display: flex;
+    flex-wrap: wrap;
+    justify-content: center;
+    gap: var(--space-3);
+  }
+</style>

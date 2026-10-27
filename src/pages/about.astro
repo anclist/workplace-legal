@@ -1,0 +1,203 @@
+---
+import BaseLayout from '../layouts/BaseLayout.astro';
+import Container from '../components/atoms/Container.astro';
+import Section from '../components/atoms/Section.astro';
+import Button from '../components/atoms/Button.astro';
+import Eyebrow from '../components/atoms/Eyebrow.astro';
+import Heading from '../components/atoms/Heading.astro';
+import Text from '../components/atoms/Text.astro';
+import SectionHeader from '../components/molecules/SectionHeader.astro';
+import CheckList from '../components/molecules/CheckList.astro';
+import PageHero from '../components/organisms/PageHero.astro';
+import CtaBanner from '../components/organisms/CtaBanner.astro';
+import { site, valueAdded } from '../data/site';
+import { memberships } from '../data/media';
+import { absoluteUrl } from '../lib/url';
+
+const personSchema = {
+  '@context': 'https://schema.org',
+  '@type': 'Person',
+  name: site.lawyer,
+  jobTitle: 'Lawyer & Workplace Investigator',
+  worksFor: { '@type': 'LegalService', name: site.name },
+  image: absoluteUrl('/brand/antonio-urdaneta.jpg', Astro.site),
+  sameAs: [site.social.linkedin, site.social.twitter],
+  knowsLanguage: ['English', 'Spanish'],
+};
+---
+
+<BaseLayout
+  title="About Antonio F. Urdaneta"
+  description="Lawyer Antonio F. Urdaneta is the thought leader behind Workplace Legal, conducting conduct-based workplace investigations into harassment, discrimination and violence."
+  schema={personSchema}
+>
+  <PageHero eyebrow="About Workplace Legal" title="The investigator <em>behind the framework</em>" />
+
+  <Section labelledby="bio-title">
+    <Container>
+      <div class="bio">
+        <figure class="bio__photo">
+          <img src="/brand/antonio-urdaneta.jpg" alt="Portrait of lawyer Antonio F. Urdaneta" width="519" height="585" />
+        </figure>
+        <div class="bio__copy">
+          <Eyebrow>Lawyer &amp; Workplace Investigator</Eyebrow>
+          <Heading level={2} size="lg" id="bio-title">{site.lawyer}</Heading>
+          <Text size="md" measure>
+            Lawyer Antonio F. Urdaneta is the thought leader behind Workplace Legal. A marathon runner who improves the
+            work climate and empowers business leaders, entrepreneurs, managers, supervisors and human resources
+            professionals to reduce the inherent threats of workplace relations by providing innovative training,
+            advisory and investigation services.
+          </Text>
+          <Text measure tone="muted">
+            He conducts workplace investigations into conduct-based allegations such as harassment, sexual harassment,
+            discrimination or violence, and failure to comply with company policies, by-laws and collective agreements.
+          </Text>
+          <CheckList items={valueAdded} columns={2} />
+          <div class="bio__actions">
+            <Button href="/contact" icon="arrow" cta="about:consult">Book a consultation</Button>
+            <Button href={site.social.linkedin} variant="secondary" icon="linkedin" iconPosition="start">Connect on LinkedIn</Button>
+          </div>
+        </div>
+      </div>
+    </Container>
+  </Section>
+
+  <Section tone="inverse" spacing="tight" labelledby="mv-title">
+    <Container>
+      <h2 id="mv-title" class="sr-only">Mission and vision</h2>
+      <div class="mv">
+        <div>
+          <Eyebrow>Mission</Eyebrow>
+          <p class="mv__quote">“To leverage the legal system to shape wealthy and healthy workplaces.”</p>
+        </div>
+        <div>
+          <Eyebrow>Vision</Eyebrow>
+          <p class="mv__quote">“A positive lifetime experience with the law at the workplace.”</p>
+        </div>
+      </div>
+    </Container>
+  </Section>
+
+  <Section tone="surface" labelledby="members-title">
+    <Container>
+      <SectionHeader id="members-title" eyebrow="Memberships" title="Professional <em>affiliations</em>" align="center" />
+      <ul class="members">
+        {
+          memberships.map((m) => (
+            <li>
+              <a href={m.href} target="_blank" rel="noopener" title={m.name}>
+                <img src={m.logo} alt={m.name} loading="lazy" />
+              </a>
+            </li>
+          ))
+        }
+      </ul>
+    </Container>
+  </Section>
+
+  <CtaBanner source="about" title="Work with an investigator <em>who understands both sides of the law.</em>" />
+</BaseLayout>
+
+<style>
+  .bio {
+    display: grid;
+    gap: var(--space-8);
+    align-items: start;
+  }
+  @media (min-width: 900px) {
+    .bio {
+      grid-template-columns: 0.8fr 1.2fr;
+      gap: var(--space-10);
+    }
+    .bio__photo {
+      position: sticky;
+      top: calc(var(--header-height) + var(--space-6));
+    }
+  }
+  .bio__photo {
+    position: relative;
+    margin: 0;
+  }
+  .bio__photo img {
+    width: 100%;
+    border-radius: var(--radius-lg);
+    box-shadow: var(--shadow-lg);
+  }
+  .bio__photo::after {
+    content: '';
+    position: absolute;
+    inset: auto -1.25rem -1.25rem auto;
+    width: 60%;
+    height: 60%;
+    border: 1px solid var(--wpl-burgundy-100);
+    border-radius: var(--radius-lg);
+    z-index: -1;
+  }
+  .bio__copy {
+    display: grid;
+    gap: var(--space-5);
+  }
+  .bio__actions {
+    display: flex;
+    flex-wrap: wrap;
+    gap: var(--space-3);
+    margin-top: var(--space-3);
+  }
+
+  .mv {
+    display: grid;
+    gap: var(--space-8);
+  }
+  @media (min-width: 800px) {
+    .mv {
+      grid-template-columns: 1fr 1fr;
+    }
+    .mv > div + div {
+      padding-left: var(--space-8);
+      border-left: 1px solid var(--color-border-inverse);
+    }
+  }
+  .mv > div {
+    display: grid;
+    gap: var(--space-4);
+  }
+  .mv__quote {
+    font-family: var(--font-display);
+    font-size: var(--text-xl);
+    font-style: italic;
+    line-height: var(--leading-snug);
+  }
+
+  .members {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(9rem, 1fr));
+    gap: var(--space-4);
+    padding: 0;
+    list-style: none;
+  }
+  .members a {
+    display: grid;
+    place-items: center;
+    height: 6.5rem;
+    padding: var(--space-4);
+    border: 1px solid var(--color-border);
+    border-radius: var(--radius-md);
+    background: var(--color-surface);
+    transition: border-color var(--duration-fast) var(--ease-out), box-shadow var(--duration-fast) var(--ease-out);
+  }
+  .members a:hover {
+    border-color: var(--color-border-strong);
+    box-shadow: var(--shadow-md);
+  }
+  .members img {
+    max-height: 3.5rem;
+    width: auto;
+    filter: grayscale(1);
+    opacity: 0.8;
+    transition: filter var(--duration-base) var(--ease-out), opacity var(--duration-base) var(--ease-out);
+  }
+  .members a:hover img {
+    filter: none;
+    opacity: 1;
+  }
+</style>

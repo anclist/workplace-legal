@@ -1,0 +1,46 @@
+---
+type Level = 1 | 2 | 3 | 4;
+type Size = 'sm' | 'md' | 'lg' | 'xl' | 'display';
+
+interface Props {
+  level?: Level;
+  size?: Size;
+  /** `display` uses the editorial serif; `ui` the brand sans. */
+  font?: 'display' | 'ui';
+  balance?: boolean;
+  class?: string;
+  id?: string;
+}
+
+const { level = 2, size = 'lg', font = 'display', balance = true, class: className, id } = Astro.props;
+const Tag = `h${level}` as const;
+---
+
+<Tag id={id} class:list={['heading', `heading--${size}`, `heading--${font}`, { 'heading--balance': balance }, className]}>
+  <slot />
+</Tag>
+
+<style>
+  .heading {
+    color: inherit;
+    line-height: var(--leading-tight);
+    letter-spacing: var(--tracking-tight);
+  }
+  .heading--balance { text-wrap: balance; }
+  .heading--display { font-family: var(--font-display); font-weight: var(--weight-medium); }
+  .heading--ui { font-family: var(--font-ui); font-weight: var(--weight-semibold); }
+
+  .heading--sm { font-size: var(--text-md); line-height: var(--leading-snug); }
+  .heading--md { font-size: var(--text-lg); line-height: var(--leading-snug); }
+  .heading--lg { font-size: var(--text-2xl); }
+  .heading--xl { font-size: clamp(2.25rem, 1.6rem + 2.4vw, 3.5rem); }
+
+  /* Italic serif emphasis inside headings: <em>words</em> */
+  .heading :global(em) {
+    font-style: italic;
+    color: var(--color-brand);
+  }
+  :global([data-theme='inverse']) .heading :global(em) {
+    color: var(--wpl-sand-300);
+  }
+</style>
