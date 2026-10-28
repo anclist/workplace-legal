@@ -19,6 +19,7 @@ import CtaBanner from '../components/organisms/CtaBanner.astro';
 import { site, triggers, valueAdded } from '../data/site';
 import { services } from '../data/services';
 import { getCollection } from 'astro:content';
+import Portrait from '../components/atoms/Portrait.astro';
 
 const posts = (await getCollection('posts')).sort((a, b) => a.data.order - b.data.order).slice(0, 3);
 ---
@@ -125,7 +126,7 @@ const posts = (await getCollection('posts')).sort((a, b) => a.data.order - b.dat
   <Section labelledby="about-title">
     <Container>
       <div class="about">
-        <img src="/brand/antonio-urdaneta.jpg" alt="Antonio F. Urdaneta, lawyer" width="519" height="585" loading="lazy" class="about__photo" />
+        <Portrait src="/brand/antonio-urdaneta.jpg" alt="Antonio F. Urdaneta, lawyer" width={519} height={585} loading="lazy" />
         <div class="about__copy">
           <Eyebrow>Meet the investigator</Eyebrow>
           <Heading level={2} size="lg" id="about-title">{site.lawyer}</Heading>
@@ -327,17 +328,6 @@ const posts = (await getCollection('posts')).sort((a, b) => a.data.order - b.dat
       grid-template-columns: 0.8fr 1.2fr;
       gap: var(--space-10);
     }
-  }
-  .about__photo {
-    width: 100%;
-    max-width: 26rem;
-    aspect-ratio: 1;
-    object-fit: cover;
-    object-position: top;
-    border-radius: 50%;
-    border: 1px solid var(--color-border);
-    padding: var(--space-3);
-    background: var(--color-surface);
   }
   .about__copy {
     display: grid;

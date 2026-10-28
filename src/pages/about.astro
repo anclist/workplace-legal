@@ -12,6 +12,7 @@ import PageHero from '../components/organisms/PageHero.astro';
 import CtaBanner from '../components/organisms/CtaBanner.astro';
 import { site, valueAdded } from '../data/site';
 import { memberships } from '../data/media';
+import Portrait from '../components/atoms/Portrait.astro';
 import { absoluteUrl } from '../lib/url';
 
 const personSchema = {
@@ -36,9 +37,7 @@ const personSchema = {
   <Section labelledby="bio-title">
     <Container>
       <div class="bio">
-        <figure class="bio__photo">
-          <img src="/brand/antonio-urdaneta.jpg" alt="Portrait of lawyer Antonio F. Urdaneta" width="519" height="585" />
-        </figure>
+        <Portrait src="/brand/antonio-urdaneta.jpg" alt="Portrait of lawyer Antonio F. Urdaneta" width={519} height={585} sticky />
         <div class="bio__copy">
           <Eyebrow>Lawyer &amp; Workplace Investigator</Eyebrow>
           <Heading level={2} size="lg" id="bio-title">{site.lawyer}</Heading>
@@ -109,29 +108,6 @@ const personSchema = {
       grid-template-columns: 0.8fr 1.2fr;
       gap: var(--space-10);
     }
-    .bio__photo {
-      position: sticky;
-      top: calc(var(--header-height) + var(--space-6));
-    }
-  }
-  .bio__photo {
-    position: relative;
-    margin: 0;
-  }
-  .bio__photo img {
-    width: 100%;
-    border-radius: var(--radius-lg);
-    box-shadow: var(--shadow-lg);
-  }
-  .bio__photo::after {
-    content: '';
-    position: absolute;
-    inset: auto -1.25rem -1.25rem auto;
-    width: 60%;
-    height: 60%;
-    border: 1px solid var(--wpl-burgundy-100);
-    border-radius: var(--radius-lg);
-    z-index: -1;
   }
   .bio__copy {
     display: grid;

@@ -1,0 +1,51 @@
+---
+interface Props {
+  src: string;
+  alt: string;
+  width: number;
+  height: number;
+  loading?: 'eager' | 'lazy';
+  /** Keep the frame in view while long copy scrolls beside it (wide screens only). */
+  sticky?: boolean;
+  class?: string;
+}
+const { src, alt, width, height, loading = 'eager', sticky = false, class: className } = Astro.props;
+---
+
+<figure class:list={['portrait', { 'portrait--sticky': sticky }, className]}>
+  <img {src} {alt} {width} {height} {loading} />
+</figure>
+
+<style>
+  .portrait {
+    position: relative;
+    isolation: isolate;
+    max-width: 28rem;
+    margin: 0 var(--space-5) var(--space-5) 0;
+  }
+  .portrait img {
+    width: 100%;
+    aspect-ratio: 519 / 585;
+    object-fit: cover;
+    object-position: top;
+    border-radius: var(--radius-lg);
+    box-shadow: var(--shadow-lg);
+  }
+  /* Offset outline echoes the logo's horizon line. */
+  .portrait::after {
+    content: '';
+    position: absolute;
+    inset: auto calc(-1 * var(--space-5)) calc(-1 * var(--space-5)) auto;
+    width: 60%;
+    height: 60%;
+    border: 1px solid var(--wpl-burgundy-100);
+    border-radius: var(--radius-lg);
+    z-index: -1;
+  }
+  @media (min-width: 900px) {
+    .portrait--sticky {
+      position: sticky;
+      top: calc(var(--header-height) + var(--space-6));
+    }
+  }
+</style>
