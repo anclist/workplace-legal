@@ -1,0 +1,969 @@
+---
+import { getCollection } from 'astro:content';
+import BaseLayout from '../layouts/BaseLayout.astro';
+import tokensCss from '../styles/tokens.css?raw';
+import Badge from '../components/atoms/Badge.astro';
+import Button from '../components/atoms/Button.astro';
+import Container from '../components/atoms/Container.astro';
+import Eyebrow from '../components/atoms/Eyebrow.astro';
+import Heading from '../components/atoms/Heading.astro';
+import Icon from '../components/atoms/Icon.astro';
+import Input from '../components/atoms/Input.astro';
+import Logo from '../components/atoms/Logo.astro';
+import Portrait from '../components/atoms/Portrait.astro';
+import Section from '../components/atoms/Section.astro';
+import Text from '../components/atoms/Text.astro';
+import { iconNames } from '../components/atoms/icons';
+import CheckList from '../components/molecules/CheckList.astro';
+import ContactMethod from '../components/molecules/ContactMethod.astro';
+import FaqItem from '../components/molecules/FaqItem.astro';
+import FormField from '../components/molecules/FormField.astro';
+import IconCard from '../components/molecules/IconCard.astro';
+import PostCard from '../components/molecules/PostCard.astro';
+import ProcessStep from '../components/molecules/ProcessStep.astro';
+import SectionHeader from '../components/molecules/SectionHeader.astro';
+import ServiceCard from '../components/molecules/ServiceCard.astro';
+import VideoCard from '../components/molecules/VideoCard.astro';
+import CtaBanner from '../components/organisms/CtaBanner.astro';
+import LeadForm from '../components/organisms/LeadForm.astro';
+import PageHero from '../components/organisms/PageHero.astro';
+import Pagination from '../components/organisms/Pagination.astro';
+import ProcessSteps from '../components/organisms/ProcessSteps.astro';
+import TrustBar from '../components/organisms/TrustBar.astro';
+import Specimen from '../components/styleguide/Specimen.astro';
+import { site, valueAdded, process, faqs } from '../data/site';
+import { services } from '../data/services';
+import { media } from '../data/media';
+
+// Tokens are read straight from tokens.css so this page can never drift from the real values.
+const rootBlock = tokensCss.slice(tokensCss.indexOf(':root {'), tokensCss.indexOf('@media'));
+const tokens = [...rootBlock.matchAll(/--([\w-]+):\s*([^;]+);(?:[ \t]*\/\*\s*(.+?)\s*\*\/)?/g)].map(
+  ([, name, value, note]) => ({ name, value: value.trim(), note }),
+);
+const byPrefix = (prefix: string) => tokens.filter((t) => t.name.startsWith(prefix));
+const alias = (value: string) => value.match(/^var\(--wpl-([\w-]+)\)$/)?.[1];
+
+const palettes = ['sand', 'slate', 'burgundy'].map((family) => ({ family, swatches: byPrefix(`wpl-${family}-`) }));
+const extras = ['wpl-white', 'wpl-success', 'wpl-danger'].map((n) => tokens.find((t) => t.name === n)!);
+const semanticColors = byPrefix('color-');
+const typeScale = byPrefix('text-').reverse();
+const spaceScale = byPrefix('space-').filter((t) => t.name !== 'space-section');
+const radii = byPrefix('radius-');
+const shadows = byPrefix('shadow-');
+const weights = byPrefix('weight-');
+const motion = [...byPrefix('duration-'), ...byPrefix('ease-')];
+const layout = [...byPrefix('container-'), ...byPrefix('gutter'), ...byPrefix('header-'), ...byPrefix('space-section'), ...byPrefix('z-')];
+
+const [post] = (await getCollection('posts')).sort((a, b) => a.data.order - b.data.order);
+
+const buttonVariants = ['primary', 'secondary', 'ghost', 'link'] as const;
+const buttonSizes = ['sm', 'md', 'lg'] as const;
+
+const toc = [
+  { id: 'principles', label: 'Principles' },
+  { id: 'foundations', label: 'Foundations', children: ['Colour', 'Typography', 'Spacing', 'Shape & depth', 'Layout & motion'] },
+  { id: 'atoms', label: 'Atoms', children: ['Button', 'Heading', 'Text', 'Eyebrow', 'Badge', 'Icon', 'Input', 'Logo', 'Portrait', 'Section'] },
+  { id: 'molecules', label: 'Molecules', children: ['SectionHeader', 'FormField', 'IconCard', 'ServiceCard', 'PostCard', 'ProcessStep', 'FaqItem', 'ContactMethod', 'VideoCard', 'CheckList'] },
+  { id: 'organisms', label: 'Organisms', children: ['PageHero', 'TrustBar', 'ProcessSteps', 'LeadForm', 'CtaBanner', 'Pagination', 'Site chrome'] },
+];
+const slug = (s: string) => s.toLowerCase().replace(/[^a-z0-9]+/g, '-').replace(/^-|-$/g, '');
+---
+
+<BaseLayout title="Style Guide" description="The Workplace Legal design system: tokens, atoms, molecules and organisms.">
+  <meta name="robots" content="noindex" slot="head" />
+
+  <PageHero
+    eyebrow="Design system"
+    title="Style guide <em>& component library</em>"
+    lede="Every token and component that builds this site, with its variants and usage. Built from the same source files as the pages — what you see here is what ships."
+  />
+
+  <Container width="wide">
+    <div class="sg">
+      <nav class="sg__toc" aria-label="Style guide sections">
+        <ol>
+          {
+            toc.map((group) => (
+              <li>
+                <a href={`#${group.id}`}>{group.label}</a>
+                {group.children && (
+                  <ol>
+                    {group.children.map((c) => (
+                      <li>
+                        <a href={`#${slug(c)}`}>{c}</a>
+                      </li>
+                    ))}
+                  </ol>
+                )}
+              </li>
+            ))
+          }
+        </ol>
+      </nav>
+
+      <div class="sg__body">
+        <!-- ─────────────────────────────── PRINCIPLES -->
+        <section id="principles" class="sg__group">
+          <SectionHeader eyebrow="00" title="Principles" lede="Four rules keep the system coherent as it grows." />
+          <ol class="principles">
+            <li>
+              <strong>Two-tier tokens.</strong> Primitives (<code>--wpl-*</code>) hold raw brand values. Components only consume
+              semantic tokens (<code>--color-*</code>, <code>--space-*</code>…), so a re-skin touches one file.
+            </li>
+            <li>
+              <strong>Atomic composition.</strong> Atoms have no layout opinions. Molecules combine atoms. Organisms own a full
+              section and its data. Pages only arrange organisms.
+            </li>
+            <li>
+              <strong>Conversion first.</strong> Every page ends in a next step. Primary actions use burgundy; nothing else
+              does. Each CTA carries a <code>cta</code> label for analytics.
+            </li>
+            <li>
+              <strong>Calm authority.</strong> Warm sand grounds, serif display type with italic emphasis, generous space,
+              restrained motion. Legal clients should feel steadied, not sold to.
+            </li>
+          </ol>
+        </section>
+
+        <!-- ─────────────────────────────── FOUNDATIONS -->
+        <section id="foundations" class="sg__group">
+          <SectionHeader eyebrow="01" title="Foundations" lede="Design tokens from src/styles/tokens.css." />
+
+          <h3 class="sg__h" id="colour">Colour</h3>
+          <Text tone="muted" size="sm">
+            Primitives come from the logo: sand (the taupe half), slate (the peaks) and burgundy (the linework).
+          </Text>
+          <div class="palettes">
+            {
+              palettes.map(({ family, swatches }) => (
+                <div class="palette">
+                  <p class="palette__name">{family}</p>
+                  {swatches.map((t) => (
+                    <div class="palette__chip" style={`background: var(--${t.name})`} data-dark={/-(5|6|7|8|9)00$/.test(t.name) || undefined}>
+                      <span>{t.name.replace(`wpl-${family}-`, '')}{t.note === 'brand' && ' · brand'}</span>
+                      <code>{t.value}</code>
+                    </div>
+                  ))}
+                </div>
+              ))
+            }
+            <div class="palette">
+              <p class="palette__name">utility</p>
+              {
+                extras.map((t) => (
+                  <div class="palette__chip" style={`background: var(--${t.name})`} data-dark={t.name !== 'wpl-white' || undefined}>
+                    <span>{t.name.replace('wpl-', '')}</span>
+                    <code>{t.value}</code>
+                  </div>
+                ))
+              }
+            </div>
+          </div>
+
+          <Specimen title="Semantic colour" note="What components reference">
+            <div class="swatches">
+              {
+                semanticColors.map((t) => (
+                  <div class="swatch">
+                    <span class="swatch__chip" style={`background: var(--${t.name})`} />
+                    <code class="swatch__name">--{t.name}</code>
+                    <span class="swatch__value">{alias(t.value) ?? t.value}</span>
+                  </div>
+                ))
+              }
+            </div>
+          </Specimen>
+
+          <h3 class="sg__h" id="typography">Typography</h3>
+          <div class="grid-2">
+            <Specimen title="Display — Newsreader" note="--font-display · headings, quotes, emphasis">
+              <p class="font-sample font-sample--display">Aa <em>Aa</em></p>
+              <p class="font-sample__line font-sample--display">Defensible findings, <em>fairly reached.</em></p>
+            </Specimen>
+            <Specimen title="UI & body — Montserrat" note="--font-ui / --font-body">
+              <p class="font-sample">Aa</p>
+              <div class="weights">
+                {weights.map((w) => <span style={`font-weight: var(--${w.name})`}>{w.name.replace('weight-', '')} {w.value}</span>)}
+              </div>
+            </Specimen>
+          </div>
+          <Specimen title="Type scale" note="Fluid sizes above lg use clamp()">
+            <div class="scale">
+              {
+                typeScale.map((t) => (
+                  <div class="scale__row">
+                    <code>--{t.name}</code>
+                    <span class="scale__sample" style={`font-size: var(--${t.name})`}>
+                      Workplace investigations
+                    </span>
+                  </div>
+                ))
+              }
+            </div>
+          </Specimen>
+          <Specimen title="Prose" note=".prose — long-form article body" code={`<div class="prose"><Content /></div>`}>
+            <div class="prose">
+              <h2>Why procedural fairness matters</h2>
+              <p>
+                An investigation is only as strong as its process. <a href="#prose">Findings</a> that rest on a fair process
+                hold up before tribunals and arbitrators.
+              </p>
+              <ul>
+                <li>Notice of the allegations</li>
+                <li>A real chance to respond</li>
+              </ul>
+              <blockquote>Fairness is not a formality; it is the evidence.</blockquote>
+            </div>
+          </Specimen>
+
+          <h3 class="sg__h" id="spacing">Spacing</h3>
+          <Specimen title="Space scale" note="4px base · --space-section is fluid">
+            <div class="space">
+              {
+                spaceScale.map((t) => (
+                  <div class="space__row">
+                    <code>{t.name.replace('space-', '')}</code>
+                    <span class="space__bar" style={`width: var(--${t.name})`} />
+                    <span class="space__value">{t.value}</span>
+                  </div>
+                ))
+              }
+            </div>
+          </Specimen>
+
+          <h3 class="sg__h" id="shape-depth">Shape &amp; depth</h3>
+          <div class="grid-2">
+            <Specimen title="Radius">
+              <div class="boxes">
+                {
+                  radii.map((t) => (
+                    <div class="box-sample">
+                      <span class="box" style={`border-radius: var(--${t.name})`} />
+                      <code>{t.name.replace('radius-', '')}</code>
+                    </div>
+                  ))
+                }
+              </div>
+            </Specimen>
+            <Specimen title="Shadow" tone="default">
+              <div class="boxes">
+                {
+                  shadows.map((t) => (
+                    <div class="box-sample">
+                      <span class="box box--raised" style={`box-shadow: var(--${t.name})`} />
+                      <code>{t.name.replace('shadow-', '')}</code>
+                    </div>
+                  ))
+                }
+              </div>
+            </Specimen>
+          </div>
+
+          <h3 class="sg__h" id="layout-motion">Layout &amp; motion</h3>
+          <Specimen title="Layout & motion tokens" note="Durations drop to 0ms under prefers-reduced-motion">
+            <table class="token-table">
+              <tbody>
+                {
+                  [...layout, ...motion].map((t) => (
+                    <tr>
+                      <td>
+                        <code>--{t.name}</code>
+                      </td>
+                      <td>{t.value}</td>
+                    </tr>
+                  ))
+                }
+              </tbody>
+            </table>
+          </Specimen>
+        </section>
+
+        <!-- ─────────────────────────────── ATOMS -->
+        <section id="atoms" class="sg__group">
+          <SectionHeader eyebrow="02" title="Atoms" lede="Smallest building blocks. Styled by props, never by the parent." />
+
+          <h3 class="sg__h" id="button">Button</h3>
+          <Specimen
+            title="Variants × sizes"
+            note="Renders <a> with href, <button> without"
+            code={`<Button href="/contact" icon="arrow" cta="hero:primary">Book a consultation</Button>
+<Button variant="secondary" size="sm">Learn more</Button>
+<Button href={site.phone.href} variant="ghost" icon="phone" iconPosition="start">Call</Button>`}
+          >
+            <div class="matrix">
+              <span />
+              {buttonSizes.map((s) => <code class="matrix__head">{s}</code>)}
+              {
+                buttonVariants.map((v) => (
+                  <>
+                    <code class="matrix__head">{v}</code>
+                    {buttonSizes.map((s) => (
+                      <div>
+                        <Button variant={v} size={s} icon="arrow">
+                          Consultation
+                        </Button>
+                      </div>
+                    ))}
+                  </>
+                ))
+              }
+            </div>
+          </Specimen>
+          <div class="grid-2">
+            <Specimen title="Inverse" note="On dark sections" tone="inverse">
+              <div class="row">
+                <Button variant="inverse" icon="phone" iconPosition="start">Call now</Button>
+                <Button icon="arrow">Primary</Button>
+              </div>
+            </Specimen>
+            <Specimen title="Block & submit" note="block, type='submit'">
+              <Button type="submit" block icon="arrow">Request a confidential call</Button>
+            </Specimen>
+          </div>
+
+          <h3 class="sg__h" id="heading">Heading</h3>
+          <Specimen title="Sizes" note="level sets semantics; size sets look — they are independent" code={`<Heading level={2} size="lg">From prevention <em>to resolution</em></Heading>`}>
+            <div class="stack">
+              {
+                (['display', 'xl', 'lg', 'md', 'sm'] as const).map((size) => (
+                  <div class="labelled">
+                    <code>{size}</code>
+                    <Heading level={3} size={size}>
+                      Workplace investigations <em>done right</em>
+                    </Heading>
+                  </div>
+                ))
+              }
+              <div class="labelled">
+                <code>font="ui"</code>
+                <Heading level={3} size="sm" font="ui">Confidential intake</Heading>
+              </div>
+            </div>
+          </Specimen>
+
+          <h3 class="sg__h" id="text">Text</h3>
+          <div class="grid-2">
+            <Specimen title="Sizes">
+              <div class="stack">
+                {(['lg', 'md', 'base', 'sm'] as const).map((size) => <Text size={size}><code>{size}</code> A short, confidential call.</Text>)}
+              </div>
+            </Specimen>
+            <Specimen title="Tones" code={`<Text size="md" tone="muted" measure>…</Text>`}>
+              <div class="stack">
+                {(['default', 'muted', 'subtle'] as const).map((tone) => <Text tone={tone}><code>{tone}</code> Every situation is different.</Text>)}
+              </div>
+            </Specimen>
+          </div>
+
+          <h3 class="sg__h" id="eyebrow">Eyebrow</h3>
+          <div class="grid-2">
+            <Specimen title="With rule (default)" code={`<Eyebrow>Meet the investigator</Eyebrow>`}>
+              <Eyebrow>Meet the investigator</Eyebrow>
+            </Specimen>
+            <Specimen title="rule={false}" tone="inverse">
+              <Eyebrow rule={false}>Request received</Eyebrow>
+            </Specimen>
+          </div>
+
+          <h3 class="sg__h" id="badge">Badge</h3>
+          <Specimen title="Tones" code={`<Badge tone="brand">ES</Badge>`}>
+            <div class="row">
+              <Badge>Neutral</Badge>
+              <Badge tone="brand">Brand</Badge>
+              <Badge tone="accent">Accent</Badge>
+            </div>
+          </Specimen>
+
+          <h3 class="sg__h" id="icon">Icon</h3>
+          <Specimen title={`${iconNames.length} stroke icons`} note="24×24 · 1.75 stroke · src/components/atoms/icons.ts" code={`<Icon name="phone" size={20} />
+<Icon name="shield" label="Protected" />  <!-- label makes it non-decorative -->`}>
+            <ul class="icons">
+              {
+                iconNames.map((name) => (
+                  <li>
+                    <Icon name={name} size={24} />
+                    <code>{name}</code>
+                  </li>
+                ))
+              }
+            </ul>
+          </Specimen>
+
+          <h3 class="sg__h" id="input">Input</h3>
+          <Specimen title="Controls & states" code={`<Input id="email" type="email" required />
+<Input as="select" options={[…]} placeholder="Choose one" />
+<Input as="textarea" rows={4} invalid />`}>
+            <div class="form-grid">
+              <label>Default<Input id="sg-i1" placeholder="Jane Doe" /></label>
+              <label>Invalid<Input id="sg-i2" value="not-an-email" invalid /></label>
+              <label>Disabled<Input id="sg-i3" value="Read only" disabled /></label>
+              <label>
+                Select
+                <Input
+                  as="select"
+                  id="sg-i4"
+                  placeholder="Choose one"
+                  options={[
+                    { value: 'a', label: 'Workplace investigation' },
+                    { value: 'b', label: 'Training' },
+                  ]}
+                />
+              </label>
+              <label class="span-2">Textarea<Input as="textarea" id="sg-i5" rows={3} placeholder="Briefly describe the situation" /></label>
+            </div>
+          </Specimen>
+
+          <h3 class="sg__h" id="logo">Logo</h3>
+          <div class="grid-2">
+            <Specimen title="Default" code={`<Logo />  <Logo tone="inverse" />  <Logo showWordmark={false} />`}>
+              <div class="row row--spread"><Logo /><Logo showWordmark={false} /></div>
+            </Specimen>
+            <Specimen title="Inverse" tone="inverse">
+              <Logo tone="inverse" />
+            </Specimen>
+          </div>
+
+          <h3 class="sg__h" id="portrait">Portrait</h3>
+          <Specimen title="Framed portrait" note="Rounded frame + offset outline echoing the logo horizon · optional sticky" code={`<Portrait src="/brand/antonio-urdaneta.jpg" alt="…" width={519} height={585} sticky />`}>
+            <div class="portrait-demo">
+              <Portrait src="/brand/antonio-urdaneta.jpg" alt="Antonio F. Urdaneta" width={519} height={585} loading="lazy" />
+            </div>
+          </Specimen>
+
+          <h3 class="sg__h" id="section">Section</h3>
+          <Specimen title="Tones" note="Section + Container frame every band of a page" tone="default" flush code={`<Section tone="inverse" spacing="tight"><Container>…</Container></Section>`}>
+            {
+              (['default', 'surface', 'muted', 'inverse'] as const).map((tone) => (
+                <Section tone={tone} spacing="none">
+                  <div class="section-demo">
+                    <Eyebrow rule={false}>tone="{tone}"</Eyebrow>
+                  </div>
+                </Section>
+              ))
+            }
+          </Specimen>
+        </section>
+
+        <!-- ─────────────────────────────── MOLECULES -->
+        <section id="molecules" class="sg__group">
+          <SectionHeader eyebrow="03" title="Molecules" lede="Small, reusable groups of atoms with one job each." />
+
+          <h3 class="sg__h" id="sectionheader">SectionHeader</h3>
+          <div class="grid-2">
+            <Specimen title="align='start'" code={`<SectionHeader eyebrow="Services" title="From prevention <em>to resolution</em>" lede="…" />`}>
+              <SectionHeader eyebrow="Services" title="From prevention <em>to resolution</em>" lede="Investigations are the core." />
+            </Specimen>
+            <Specimen title="align='center'">
+              <SectionHeader eyebrow="FAQ" title="Questions, <em>answered</em>" lede="Straight answers before you call." align="center" />
+            </Specimen>
+          </div>
+
+          <h3 class="sg__h" id="formfield">FormField</h3>
+          <Specimen title="Label, required marker, hint" code={`<FormField label="Work email" for="email" required hint="We reply within one business day.">
+  <Input id="email" type="email" required />
+</FormField>`}>
+            <div class="form-grid">
+              <FormField label="Work email" for="sg-f1" required hint="We reply within one business day.">
+                <Input id="sg-f1" type="email" />
+              </FormField>
+              <FormField label="Organization" for="sg-f2">
+                <Input id="sg-f2" />
+              </FormField>
+            </div>
+          </Specimen>
+
+          <h3 class="sg__h" id="iconcard">IconCard</h3>
+          <Specimen title="Static & linked" note="href turns it into a link card" tone="default">
+            <div class="cards">
+              <IconCard icon="shield" title="Harassment" text="Workplace and personal harassment complaints." />
+              <IconCard icon="scale" title="Discrimination" text="Allegations under the Human Rights Code." href="#iconcard" />
+            </div>
+          </Specimen>
+
+          <h3 class="sg__h" id="servicecard">ServiceCard</h3>
+          <Specimen title="Numbered service link" tone="default" code={`{services.map((service, i) => <ServiceCard {service} index={i} />)}`}>
+            <div class="cards">
+              {services.slice(0, 2).map((service, i) => <ServiceCard service={service} index={i} />)}
+            </div>
+          </Specimen>
+
+          <h3 class="sg__h" id="postcard">PostCard</h3>
+          <Specimen title="featured" tone="default" code={`<PostCard slug={post.id} {...post.data} featured />`}>
+            <PostCard slug={post.id} {...post.data} featured />
+          </Specimen>
+          <Specimen title="Default · with and without image" tone="default">
+            <div class="cards">
+              <PostCard slug={post.id} {...post.data} />
+              <PostCard slug={post.id} {...post.data} image={undefined} />
+            </div>
+          </Specimen>
+
+          <h3 class="sg__h" id="processstep">ProcessStep</h3>
+          <Specimen title="Step" note="Rendered as <li> inside ProcessSteps" tone="inverse">
+            <ol class="bare cards">
+              {process.slice(0, 2).map((p, i) => <ProcessStep step={i + 1} title={p.title} text={p.text} />)}
+            </ol>
+          </Specimen>
+
+          <h3 class="sg__h" id="faqitem">FaqItem</h3>
+          <Specimen title="Closed & open" note="Native <details> — works without JS" code={`<FaqItem question="…" open>Answer</FaqItem>`}>
+            <FaqItem question={faqs[1].q} open>{faqs[1].a}</FaqItem>
+            <FaqItem question={faqs[3].q}>{faqs[3].a}</FaqItem>
+          </Specimen>
+
+          <h3 class="sg__h" id="contactmethod">ContactMethod</h3>
+          <Specimen title="Link, with note, static" code={`<ContactMethod icon="phone" label="Call" value={site.phone.display} href={site.phone.href} note="…" />`}>
+            <div class="stack">
+              <ContactMethod icon="phone" label="Call" value={site.phone.display} href={site.phone.href} note="Recommended for confidential matters" />
+              <ContactMethod icon="mail" label="Email" value={site.email} href={`mailto:${site.email}`} />
+              <ContactMethod icon="doc" label="Fax" value={site.fax.display} />
+            </div>
+          </Specimen>
+
+          <h3 class="sg__h" id="videocard">VideoCard</h3>
+          <Specimen title="YouTube facade" note="Loads the nocookie player only on click" tone="default">
+            <div class="cards">
+              <VideoCard item={media.find((m) => m.lang === 'EN')!} />
+              <VideoCard item={media.find((m) => m.lang === 'ES')!} />
+            </div>
+          </Specimen>
+
+          <h3 class="sg__h" id="checklist">CheckList</h3>
+          <Specimen title="columns={2}" code={`<CheckList items={valueAdded} columns={2} />`}>
+            <CheckList items={valueAdded} columns={2} />
+          </Specimen>
+        </section>
+
+        <!-- ─────────────────────────────── ORGANISMS -->
+        <section id="organisms" class="sg__group">
+          <SectionHeader eyebrow="04" title="Organisms" lede="Full sections that own their data. Pages compose these." />
+
+          <h3 class="sg__h" id="pagehero">PageHero</h3>
+          <Text tone="muted" size="sm">
+            The hero at the top of this page is a live <code>&lt;PageHero&gt;</code>: eyebrow, title with <code>&lt;em&gt;</code>
+            emphasis, lede, and the ring motif from the logo.
+          </Text>
+
+          <h3 class="sg__h" id="trustbar">TrustBar</h3>
+          <Specimen title="Credibility strip" flush>
+            <TrustBar />
+          </Specimen>
+
+          <h3 class="sg__h" id="processsteps">ProcessSteps</h3>
+          <Specimen title="Four-step process" flush>
+            <ProcessSteps />
+          </Specimen>
+
+          <h3 class="sg__h" id="leadform">LeadForm</h3>
+          <Specimen
+            title="variant='full'"
+            note="Qualifying fields · honeypot · validation · emits form_start / generate_lead"
+            code={`<LeadForm source="contact" />
+<LeadForm variant="compact" source="home" />`}
+          >
+            <LeadForm source="styleguide-full" />
+          </Specimen>
+
+          <h3 class="sg__h" id="ctabanner">CtaBanner</h3>
+          <Specimen title="Closing CTA with compact form" note="Ends every page" flush code={`<CtaBanner source="blog" title="Facing a situation like this? <em>Let’s talk.</em>" />`}>
+            <CtaBanner source="styleguide" />
+          </Specimen>
+
+          <h3 class="sg__h" id="pagination">Pagination</h3>
+          <Specimen title="Page 2 of 4" code={`<Pagination current={page.currentPage} last={page.lastPage} prev={page.url.prev} next={page.url.next} base="/blog" />`}>
+            <Pagination current={2} last={4} prev="/blog" next="/blog/3" base="/blog" />
+          </Specimen>
+
+          <h3 class="sg__h" id="site-chrome">Site chrome</h3>
+          <Text tone="muted" size="sm">
+            <code>SiteHeader</code> (utility bar, sticky nav, header CTA, mobile menu), <code>SiteFooter</code> and
+            <code>MobileCtaBar</code> (call + book, under 720px) wrap every page through <code>BaseLayout</code>. They are live
+            on this page — scroll, or narrow the window to see the mobile bar.
+          </Text>
+        </section>
+      </div>
+    </div>
+  </Container>
+</BaseLayout>
+
+<style>
+  .sg {
+    display: grid;
+    gap: var(--space-8);
+    padding-block: var(--space-9);
+  }
+  @media (min-width: 1024px) {
+    .sg {
+      grid-template-columns: 13rem minmax(0, 1fr);
+      gap: var(--space-9);
+    }
+  }
+
+  /* TOC */
+  .sg__toc {
+    font-family: var(--font-ui);
+    font-size: var(--text-sm);
+  }
+  .sg__toc ol {
+    list-style: none;
+    margin: 0;
+    padding: 0;
+  }
+  .sg__toc > ol {
+    display: flex;
+    flex-wrap: wrap;
+    gap: var(--space-2) var(--space-5);
+  }
+  .sg__toc ol ol {
+    display: none;
+  }
+  .sg__toc a {
+    color: var(--color-text-muted);
+    text-decoration: none;
+  }
+  .sg__toc a:hover {
+    color: var(--color-brand);
+  }
+  .sg__toc > ol > li > a {
+    font-weight: var(--weight-semibold);
+    color: var(--color-text);
+  }
+  @media (min-width: 1024px) {
+    .sg__toc > ol {
+      position: sticky;
+      top: calc(var(--header-height) + var(--space-6));
+      display: grid;
+      gap: var(--space-4);
+      max-height: calc(100vh - var(--header-height) - var(--space-8));
+      overflow-y: auto;
+    }
+    .sg__toc ol ol {
+      display: grid;
+      gap: var(--space-1);
+      margin-top: var(--space-2);
+      padding-left: var(--space-3);
+      border-left: 1px solid var(--color-border);
+    }
+  }
+
+  .sg__body {
+    display: grid;
+    gap: var(--space-10);
+    min-width: 0;
+  }
+  .sg__group {
+    display: grid;
+    gap: var(--space-5);
+    scroll-margin-top: calc(var(--header-height) + var(--space-5));
+  }
+  .sg__h {
+    margin-top: var(--space-6);
+    padding-top: var(--space-5);
+    border-top: 1px solid var(--color-border);
+    font-family: var(--font-display);
+    font-size: var(--text-xl);
+    font-weight: var(--weight-medium);
+    scroll-margin-top: calc(var(--header-height) + var(--space-5));
+  }
+  .sg code {
+    font-family: ui-monospace, 'SF Mono', Menlo, monospace;
+    font-size: 0.85em;
+  }
+
+  .principles {
+    display: grid;
+    gap: var(--space-4);
+    grid-template-columns: repeat(auto-fit, minmax(min(100%, 24rem), 1fr));
+    margin: 0;
+    padding: 0;
+    list-style: none;
+    counter-reset: p;
+  }
+  .principles li {
+    padding: var(--space-5);
+    background: var(--color-surface);
+    border: 1px solid var(--color-border);
+    border-top: 3px solid var(--color-brand);
+    border-radius: var(--radius-md);
+    color: var(--color-text-muted);
+    font-size: var(--text-sm);
+    line-height: var(--leading-normal);
+  }
+  .principles strong {
+    display: block;
+    margin-bottom: var(--space-2);
+    color: var(--color-text);
+    font-size: var(--text-base);
+  }
+
+  /* Layout helpers */
+  .grid-2 {
+    display: grid;
+    gap: var(--space-5);
+    grid-template-columns: repeat(auto-fit, minmax(min(100%, 22rem), 1fr));
+  }
+  .cards {
+    display: grid;
+    gap: var(--space-5);
+    grid-template-columns: repeat(auto-fit, minmax(min(100%, 18rem), 1fr));
+  }
+  .stack {
+    display: grid;
+    gap: var(--space-4);
+  }
+  .row {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    gap: var(--space-3);
+  }
+  .row--spread {
+    justify-content: space-between;
+  }
+  .bare {
+    margin: 0;
+    padding: 0;
+    list-style: none;
+  }
+  .labelled {
+    display: grid;
+    gap: var(--space-1);
+  }
+  .labelled > code,
+  .matrix__head {
+    color: var(--color-text-subtle);
+    font-size: var(--text-xs);
+  }
+
+  /* Colour */
+  .palettes {
+    display: grid;
+    align-items: start;
+    gap: var(--space-4);
+    grid-template-columns: repeat(auto-fit, minmax(min(100%, 12rem), 1fr));
+  }
+  .palette {
+    display: grid;
+    border-radius: var(--radius-md);
+    overflow: hidden;
+    border: 1px solid var(--color-border);
+  }
+  .palette__name {
+    padding: var(--space-2) var(--space-3);
+    background: var(--color-surface);
+    font-family: var(--font-ui);
+    font-size: var(--text-xs);
+    font-weight: var(--weight-semibold);
+    letter-spacing: var(--tracking-wide);
+    text-transform: uppercase;
+  }
+  .palette__chip {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    gap: var(--space-2);
+    padding: var(--space-3);
+    min-height: 3rem;
+    font-family: var(--font-ui);
+    font-size: var(--text-xs);
+    color: var(--wpl-slate-900);
+  }
+  .palette__chip[data-dark] {
+    color: var(--wpl-white);
+  }
+  .swatches {
+    display: grid;
+    gap: var(--space-4) var(--space-5);
+    grid-template-columns: repeat(auto-fill, minmax(min(100%, 15rem), 1fr));
+  }
+  .swatch {
+    display: grid;
+    grid-template-columns: 2.5rem 1fr;
+    column-gap: var(--space-3);
+    align-items: center;
+  }
+  .swatch__chip {
+    grid-row: span 2;
+    width: 2.5rem;
+    height: 2.5rem;
+    border-radius: var(--radius-md);
+    border: 1px solid var(--color-border);
+  }
+  .swatch__name {
+    font-size: var(--text-xs) !important;
+    overflow-wrap: anywhere;
+  }
+  .swatch__value {
+    font-size: var(--text-xs);
+    color: var(--color-text-subtle);
+  }
+
+  /* Type */
+  .font-sample {
+    font-size: 4rem;
+    line-height: 1;
+    font-family: var(--font-ui);
+  }
+  .font-sample--display {
+    font-family: var(--font-display);
+  }
+  .font-sample em {
+    color: var(--color-brand);
+  }
+  .font-sample__line {
+    margin-top: var(--space-4);
+    font-size: var(--text-xl);
+  }
+  .font-sample__line em {
+    color: var(--color-brand);
+  }
+  .weights {
+    display: flex;
+    flex-wrap: wrap;
+    gap: var(--space-2) var(--space-5);
+    margin-top: var(--space-4);
+    font-family: var(--font-ui);
+  }
+  .scale {
+    display: grid;
+    gap: var(--space-3);
+  }
+  .scale__row {
+    display: grid;
+    grid-template-columns: 6rem 1fr;
+    align-items: baseline;
+    gap: var(--space-4);
+    min-width: 0;
+  }
+  .scale__row code {
+    color: var(--color-text-subtle);
+    font-size: var(--text-xs) !important;
+  }
+  .scale__sample {
+    font-family: var(--font-display);
+    line-height: var(--leading-tight);
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+  }
+
+  /* Space */
+  .space {
+    display: grid;
+    gap: var(--space-2);
+  }
+  .space__row {
+    display: grid;
+    grid-template-columns: 2rem 6.5rem 1fr;
+    align-items: center;
+    gap: var(--space-4);
+    font-size: var(--text-xs);
+  }
+  .space__bar {
+    height: 0.75rem;
+    background: var(--color-accent);
+    border-radius: var(--radius-sm);
+  }
+  .space__value {
+    color: var(--color-text-subtle);
+  }
+
+  /* Shape */
+  .boxes {
+    display: flex;
+    flex-wrap: wrap;
+    gap: var(--space-6);
+  }
+  .box-sample {
+    display: grid;
+    justify-items: center;
+    gap: var(--space-2);
+    font-size: var(--text-xs);
+  }
+  .box {
+    width: 4.5rem;
+    height: 4.5rem;
+    background: var(--color-surface-muted);
+    border: 1px solid var(--color-border-strong);
+  }
+  .box--raised {
+    background: var(--color-surface);
+    border: none;
+    border-radius: var(--radius-md);
+  }
+  .token-table {
+    width: 100%;
+    border-collapse: collapse;
+    font-size: var(--text-sm);
+  }
+  .token-table td {
+    padding: var(--space-2) 0;
+    border-bottom: 1px solid var(--color-border);
+    overflow-wrap: anywhere;
+  }
+  .token-table td + td {
+    padding-left: var(--space-4);
+    color: var(--color-text-muted);
+  }
+
+  /* Atoms */
+  .matrix {
+    display: grid;
+    grid-template-columns: auto repeat(3, auto);
+    align-items: center;
+    justify-content: start;
+    gap: var(--space-4) var(--space-6);
+    overflow-x: auto;
+  }
+  .icons {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(6.5rem, 1fr));
+    gap: var(--space-2);
+    margin: 0;
+    padding: 0;
+    list-style: none;
+  }
+  .icons li {
+    display: grid;
+    justify-items: center;
+    gap: var(--space-2);
+    padding: var(--space-4) var(--space-2);
+    border-radius: var(--radius-md);
+    color: var(--color-text);
+  }
+  .icons li:hover {
+    background: var(--color-surface-muted);
+    color: var(--color-brand);
+  }
+  .icons code {
+    font-size: var(--text-xs) !important;
+    color: var(--color-text-subtle);
+  }
+  .form-grid {
+    display: grid;
+    gap: var(--space-4);
+    grid-template-columns: repeat(auto-fit, minmax(min(100%, 14rem), 1fr));
+  }
+  .form-grid > label {
+    display: grid;
+    gap: var(--space-2);
+    font-family: var(--font-ui);
+    font-size: var(--text-sm);
+    font-weight: var(--weight-semibold);
+  }
+  .span-2 {
+    grid-column: 1 / -1;
+  }
+  .sg :global(.pagination) {
+    margin-top: 0;
+  }
+  .sg :global(.prose > :first-child) {
+    margin-top: 0;
+  }
+  .portrait-demo {
+    max-width: 18rem;
+  }
+  .section-demo {
+    padding: var(--space-5) var(--space-6);
+  }
+</style>

@@ -16,7 +16,7 @@ const { level = 2, size = 'lg', font = 'display', balance = true, class: classNa
 const Tag = `h${level}` as const;
 ---
 
-<Tag id={id} class:list={['heading', `heading--${size}`, `heading--${font}`, { 'heading--balance': balance }, className]}>
+<Tag id={id} class:list={['heading', `heading--${size}`, `heading--font-${font}`, { 'heading--balance': balance }, className]}>
   <slot />
 </Tag>
 
@@ -27,13 +27,14 @@ const Tag = `h${level}` as const;
     letter-spacing: var(--tracking-tight);
   }
   .heading--balance { text-wrap: balance; }
-  .heading--display { font-family: var(--font-display); font-weight: var(--weight-medium); }
-  .heading--ui { font-family: var(--font-ui); font-weight: var(--weight-semibold); }
+  .heading--font-display { font-family: var(--font-display); font-weight: var(--weight-medium); }
+  .heading--font-ui { font-family: var(--font-ui); font-weight: var(--weight-semibold); }
 
   .heading--sm { font-size: var(--text-md); line-height: var(--leading-snug); }
   .heading--md { font-size: var(--text-lg); line-height: var(--leading-snug); }
   .heading--lg { font-size: var(--text-2xl); }
   .heading--xl { font-size: clamp(2.25rem, 1.6rem + 2.4vw, 3.5rem); }
+  .heading--display { font-size: var(--text-3xl); }
 
   /* Italic serif emphasis inside headings: <em>words</em> */
   .heading :global(em) {

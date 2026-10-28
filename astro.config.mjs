@@ -37,7 +37,7 @@ function prefixRootPaths() {
 export default defineConfig({
   site,
   base,
-  integrations: [sitemap(), prefixRootPaths()],
+  integrations: [sitemap({ filter: (page) => !/\/(style-guide|thank-you)\/?$/.test(page) }), prefixRootPaths()],
   // Preserve legacy Webflow URLs.
   redirects: {
     '/workin-progress': `${base.replace(/\/$/, '')}/podcast`,
